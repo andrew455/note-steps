@@ -77,6 +77,8 @@
       names.push(input.name || 'USB keyboard');
     });
     on = names.length > 0;
+    // Keep the screen on and bright while a keyboard is plugged in (no dimming, no auto-lock).
+    if (on) NS.wake.hold('midi'); else NS.wake.release('midi');
     NS.bus.emit('midi:state', { on, names: names.slice() });
   }
 
@@ -103,9 +105,12 @@
     if (access) access.inputs.forEach((i) => { i.onmidimessage = null; });
     held.clear();
     on = false;
+    NS.wake.release('midi');
     try { localStorage.removeItem(KEY); } catch {}
     NS.bus.emit('midi:state', { on: false, names: [] });
   }
+
+  document.addEventListener('pointerdown', () => { if (on) NS.wake.hold('midi'); }, { passive: true });
 
   NS.midi = {
     supported,
