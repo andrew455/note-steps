@@ -59,7 +59,12 @@
     for (const p of [2, 3, 5]) while (m > 1 && m % p === 0) m /= p;
     OFF_TUNE[h] = h > 1 && m > 1;
   }
-  const CHORDS = { C: [0, 4, 7], Cm: [0, 3, 7], G: [7, 11, 2] };
+  // Every major and minor triad: 'C', 'Cm', 'C#', 'C#m', ... (the same ids as core/chordset.js).
+  const CHORDS = {};
+  ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'].forEach((r, i) => {
+    CHORDS[r] = [i, (i + 4) % 12, (i + 7) % 12];
+    CHORDS[r + 'm'] = [i, (i + 3) % 12, (i + 7) % 12];
+  });
   const NON_CHORD = [1, 2, 5, 6, 8, 9, 10, 11];
 
   function withDefaults(opts) {

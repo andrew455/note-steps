@@ -42,7 +42,7 @@
 
   const NAMES = ['C', 'C♯', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B♭', 'B'];
   // Command ids used by the app; any other major or minor triad is still named in a message.
-  const IDS = { '0maj': 'C', '0min': 'Cm', '7maj': 'G' };
+  const ROOT_IDS = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
 
   // Which triad do these pitch classes make (any inversion, notes doubled in other octaves)?
   function triadOf(pcs) {
@@ -64,10 +64,14 @@
     const tri = triadOf(pcs);
     if (!tri) return;
     chordFired = true;
-    const id = IDS[tri.root + tri.quality] || null;
+    const id = ROOT_IDS[tri.root] + (tri.quality === 'min' ? 'm' : '');
     const label = `${NAMES[tri.root]} ${tri.quality === 'maj' ? 'major' : 'minor'}`;
-    NS.bus.emit('midi:chordname', { label, id });
-    if (id) NS.bus.emit('midi:chord', { name: id });
+    // Is it one of the chords the app is using right now?
+    let cur = null;
+    try { cur = NS.chordset.current(); } catch {}
+    const used = cur ? [cur.next, cur.again, cur.back].includes(id) : false;
+    NS.bus.emit('midi:chordname', { label, id, used });
+    NS.bus.emit('midi:chord', { name: id });
   }
 
   function wire() {

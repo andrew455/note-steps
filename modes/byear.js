@@ -11,8 +11,11 @@
   const B = NS.ByEar;
   const { svgEl } = NS.util;
 
-  const STEPS = [['listen', 'Listen'], ['practise', 'Practise'], ['take', 'Real take'], ['compare', 'Compare']];
-  const CHORD_ORDER = ['C', 'Cm', 'G'];
+  // No practise step: you can practise anywhere (Free Play), so after listening you go straight to the take.
+  const STEPS = [['listen', 'Listen'], ['take', 'Real take'], ['compare', 'Compare']];
+  // The command chords move on as you learn (core/chordset.js): next (major), again (minor), back.
+  const V = () => (NS.chordset ? NS.chordset.current() : { next: 'C', again: 'Cm', back: 'G' });
+  const chordOrder = () => { const v = V(); return [v.next, v.again, v.back]; };
   const CHORD_KEYS = { C: [60, 64, 67], Cm: [60, 63, 67], G: [67, 71, 74] };
   const COMFORT = {
     easy: ['Easy', 'good'], right: ['Just right', 'good'], stretch: ['Stretch', 'learn'],
@@ -157,10 +160,10 @@
 
   // Mini keyboard for a chord chip: C4..E5 with the 3 keys lit and finger numbers 1-3-5.
   function chordKeysSvg(chord) {
-    const keys = CHORD_KEYS[chord] || [];
+    const keys = root.ChordSet ? root.ChordSet.midis(chord) : (CHORD_KEYS[chord] || []);
     const W = 9;
     const whites = [];
-    for (let m = 60; m <= 76; m++) if (![1, 3, 6, 8, 10].includes(m % 12)) whites.push(m);
+    for (let m = 55; m <= 76; m++) if (![1, 3, 6, 8, 10].includes(m % 12)) whites.push(m);
     const svg = svgEl('svg', { viewBox: `0 0 ${whites.length * W + 1} 40`, width: whites.length * W + 1, height: 40, 'aria-hidden': 'true', class: 'be-cb-keys' });
     whites.forEach((m, i) => {
       const lit = keys.includes(m);
@@ -168,7 +171,7 @@
       r.style.fill = lit ? 'var(--accent)' : 'var(--key-white)';
       r.style.stroke = 'var(--line)';
     });
-    for (let m = 61; m <= 75; m++) {
+    for (let m = 56; m <= 75; m++) {
       if (![1, 3, 6, 8, 10].includes(m % 12)) continue;
       const below = whites.indexOf(m - 1);
       const lit = keys.includes(m);
@@ -432,7 +435,7 @@
   // list: [{chord, label, announce, run(info)}]; info = {chord, at (audio clock s), via:'chord'|'tap'|'bar'}
   function setCommands(list) {
     clearCommands();
-    S.commands = list.slice().sort((a, b) => CHORD_ORDER.indexOf(a.chord) - CHORD_ORDER.indexOf(b.chord));
+    S.commands = list.slice().sort((a, b) => chordOrder().indexOf(a.chord) - chordOrder().indexOf(b.chord));
     if (!S.commands.length) return;
     const cmds = S.commands.map((c) => ({
       chord: c.chord, label: c.label,
@@ -528,7 +531,7 @@
     if (!CD || typeof CD.attach !== 'function' || ((!src || !NS.mic.isOn()) && !midiOn)) return;
     if (root.ChordBar && root.ChordBar.detects) return;
     try {
-      S.det = CD.attach(NS.audio.ctx(), src, { targets: CHORD_ORDER.slice(), onChord: onChord, muted: () => Boolean(S && S.playing) || NS.audio.micMuted() });
+      S.det = CD.attach(NS.audio.ctx(), src, { targets: chordOrder(), onChord: onChord, muted: () => Boolean(S && S.playing) || NS.audio.micMuted() });
       S.det.start();
     } catch (err) {
       console.error('[byear] chord detector failed', err);
@@ -539,7 +542,7 @@
     if (S && S.det) { try { S.det.dispose(); } catch {} S.det = null; }
   }
   function onChord(name, info) {
-    if (!S || !CHORD_ORDER.includes(name)) return;
+    if (!S || !chordOrder().includes(name)) return;
     // Mic chords are muted while our own synth plays (the speaker would trigger them). A USB keyboard
     // can't hear the speaker, so its chords always count and simply stop the playback.
     const usb = info && info.via === 'midi';
@@ -670,8 +673,8 @@
     S.miniKb.setHint(first.midi);
 
     setCommands([
-      { chord: 'Cm', label: 'Hear it again', announce: 'playing the song again', run: () => playListen() },
-      { chord: 'C', label: 'I’m ready to practise', announce: 'time to practise', run: () => showPractise() },
+      { chord: V().again, label: 'Hear it again', announce: 'playing the song again', run: () => playListen() },
+      { chord: V().next, label: 'Start the real take', announce: 'starting the real take', run: (info) => startTake(info) },
     ]);
     updateListenUi();
     if (!S.autoPlayed) {
@@ -767,8 +770,8 @@
     renderLive(true);
     startTimer();
     setCommands([
-      { chord: 'Cm', label: 'Hear it again', announce: 'playing the song again', run: () => afterChord(() => { if (S && S.step === 'practise') play('song'); }) },
-      { chord: 'C', label: 'Start the real take', announce: 'starting the real take', run: (info) => startTake(info) },
+      { chord: V().again, label: 'Hear it again', announce: 'playing the song again', run: () => afterChord(() => { if (S && S.step === 'practise') play('song'); }) },
+      { chord: V().next, label: 'Start the real take', announce: 'starting the real take', run: (info) => startTake(info) },
     ]);
     updatePractiseUi();
   }
@@ -908,14 +911,14 @@
     dot.setAttribute('aria-hidden', 'true');
     rec.append(dot, el('strong', null, 'Recording'));
     const count = el('p', 'be-count', '0 notes so far');
-    const tip = el('p', 'muted', 'Play the whole song from memory. The staff stays hidden until you finish. Play G major when you’re done.');
+    const tip = el('p', 'muted', `Play the part from memory. The notes stay hidden until you finish. Play ${root.ChordSet ? root.ChordSet.name(V().back) : 'G major'} when you’re done.`);
     const keys = keysBlock();
     S.body.append(rec, count, tip, keys);
     S.takeUi = { count };
     announce('Recording');
     setCommands([
-      { chord: 'Cm', label: 'Start the take over', announce: 'starting the take over', run: (i) => startTake(i) },
-      { chord: 'G', label: 'I’m done', announce: 'comparing your take with the song', run: (i) => finishTake(i) },
+      { chord: V().again, label: 'Start the take over', announce: 'starting the take over', run: (i) => startTake(i) },
+      { chord: V().back, label: 'I’m done', announce: 'comparing your take with the song', run: (i) => finishTake(i) },
     ]);
   }
 
@@ -930,7 +933,7 @@
   function finishTake(info = {}) {
     if (S.step !== 'take' || S.recording !== true) return;
     const at = Number.isFinite(info.at) ? info.at : audioNow();
-    if (info.via !== 'tap') S.gestures.push({ chord: 'G', at, from: info.from });
+    if (info.via !== 'tap') S.gestures.push({ chord: V().back, at, from: info.from });
     // Notes whose onset came just before the G are confirmed a little later: wait for them.
     S.recording = 'closing';
     S.closeAt = info.via === 'tap' ? at : at + 0.3;
@@ -1029,9 +1032,9 @@
     announce(`${B.summaryText(r)}.${S.newBest ? ' New best!' : ''}`);
     setCommands([
       S.sec < S.sections.length - 1
-        ? { chord: 'C', label: 'Next part', announce: 'on to the next part', run: () => goSection(S.sec + 1) }
-        : { chord: 'C', label: 'Next song', announce: 'opening the next song', run: () => nextSong() },
-      { chord: 'Cm', label: 'Try this part again', announce: 'back to practice', run: () => showPractise() },
+        ? { chord: V().next, label: 'Next part', announce: 'on to the next part', run: () => goSection(S.sec + 1) }
+        : { chord: V().next, label: 'Next song', announce: 'opening the next song', run: () => nextSong() },
+      { chord: V().again, label: 'Hear it again and retry', announce: 'playing this part again', run: () => goSection(S.sec) },
     ]);
   }
 

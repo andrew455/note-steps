@@ -837,17 +837,19 @@
     const slot = ses.ui.chords;
     slot.innerHTML = '';
     if (!root.ChordCard) return;
-    const cAction = hasNext ? 'Next song' : 'All songs';
-    const actions = {
-      C: () => (hasNext ? goNext() : goList()),
-      Cm: () => playAgain(),
-    };
+    const v = NS.chordset ? NS.chordset.current() : { next: 'C', again: 'Cm', back: 'G' };
+    const CS = root.ChordSet;
+    const spec = (id, action) => ({
+      id, title: CS ? CS.name(id) : id, action,
+      notes: CS ? CS.noteNames(id) : ['C4', 'E4', 'G4'], fingers: [1, 3, 5],
+    });
+    const actions = {};
+    actions[v.next] = () => (hasNext ? goNext() : goList());
+    actions[v.again] = () => playAgain();
+    actions[v.back] = () => goList();
     const card = root.ChordCard.render(slot, {
-      chords: [
-        { id: 'C', title: 'C major', action: cAction, notes: ['C4', 'E4', 'G4'], fingers: [1, 3, 5] },
-        { id: 'Cm', title: 'C minor', action: 'Play again', notes: ['C4', 'Eb4', 'G4'], fingers: [1, 3, 5] },
-      ],
-      listening: NS.mic.isOn(),
+      chords: [spec(v.next, hasNext ? 'Next song' : 'All songs'), spec(v.again, 'Play again'), spec(v.back, 'All songs')],
+      listening: NS.mic.isOn() || Boolean(NS.midi && NS.midi.isOn()),
     });
     ses.chord = { card, det: null, quietUntil: 0, actions, timer: null };
     attachChords();
@@ -867,7 +869,7 @@
     const midiOn = NS.midi && NS.midi.isOn();
     if ((!src && !midiOn) || !root.ChordDetect) return;
     c.det = root.ChordDetect.attach(NS.audio.ctx(), src, {
-      targets: ['C', 'Cm'],
+      targets: Object.keys(c.actions),
       muted: () => NS.audio.micMuted(performance.now()),
       onChord: (name, info) => {
         const now = performance.now();

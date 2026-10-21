@@ -17,8 +17,15 @@
   const pcDist = (a, b) => { const d = Math.abs(pc(a) - pc(b)); return Math.min(d, 12 - d); };
 
   // Pitch classes of the command chords (§7.1).
-  const CHORD_PCS = { C: [0, 4, 7], Cm: [0, 3, 7], G: [7, 11, 2] };
-  const CHORD_NAMES = { C: 'C major', Cm: 'C minor', G: 'G major' };
+  const CHORD_PCS = {};
+  const CHORD_NAMES = {};
+  ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'].forEach((r, i) => {
+    const nice = ['C', 'C♯', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B♭', 'B'][i];
+    CHORD_PCS[r] = [i, (i + 4) % 12, (i + 7) % 12];
+    CHORD_PCS[r + 'm'] = [i, (i + 3) % 12, (i + 7) % 12];
+    CHORD_NAMES[r] = nice + ' major';
+    CHORD_NAMES[r + 'm'] = nice + ' minor';
+  });
 
   // ======================================================================
   // ALIGNMENT: Needleman–Wunsch on pitch class

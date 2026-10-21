@@ -157,8 +157,10 @@
     if (s.on) micNotice('');
     else if (s.message) micNotice(s.message);
   });
-  NS.bus.on('midi:chordname', ({ label, id }) => {
-    toast(id ? `🎹 ${label}` : `🎹 ${label} (the app uses C major, C minor and G major)`, { ms: id ? 1500 : 2500 });
+  NS.bus.on('midi:chordname', ({ label, used }) => {
+    // Free Play shows every chord itself; elsewhere a short note confirms it was heard.
+    if (document.querySelector('main.wrap:not([hidden])[data-mode="free"]')) return;
+    toast(`🎹 ${label}`, { ms: used ? 1500 : 2000 });
   });
 
   NS.bus.on('mic:level', ({ rms }) => {
