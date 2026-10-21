@@ -59,7 +59,7 @@ test('one extra note gives extra in its own column', () => {
   assert.equal(ex.take, A);
   assert.equal(ex.song, undefined);
   assert.equal(ex.takeIndex, 5);
-  assert.equal(r.pct, 100);
+  assert.equal(r.pct, 96); // extras count against you: 26 / 27
 });
 
 test('a take an octave higher (or mixed octaves) still matches', () => {
@@ -79,7 +79,7 @@ test('the e2e take: 2 wrong, 1 missing, 1 extra -> 23 / 2 / 1 / 1', () => {
   take.splice(12, 1);     // missed: the second G
   const r = B.align(MARY, take);
   assert.deepEqual(B.counts(r), { match: 23, sub: 2, missed: 1, extra: 1 });
-  assert.equal(B.summaryText(r), '23 of 26 notes matched (88%)');
+  assert.equal(B.summaryText(r), '23 of 26 notes matched, 1 extra note (85%)');
 });
 
 test('near misses (within 2 semitones) align as substitutions', () => {
@@ -99,7 +99,7 @@ test('ties prefer substitution, then deletion', () => {
 });
 
 test('empty inputs', () => {
-  assert.deepEqual(B.align([], []), { columns: [], matched: 0, total: 0, pct: 0 });
+  assert.deepEqual(B.align([], []), { columns: [], matched: 0, total: 0, extra: 0, pct: 0 });
   const r = B.align([60, 62], []);
   assert.deepEqual(kinds(r), ['missed', 'missed']);
   assert.equal(r.pct, 0);

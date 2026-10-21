@@ -147,6 +147,12 @@
     buildChips();
     offs = [
       NS.input.on(onInput),
+      // Chords from the USB keyboard come as one group; show them stacked.
+      NS.bus.on('midi:chordnotes', ({ notes }) => {
+        if (!mounted || playback) return;
+        const t = notes[0].tOnset;
+        notes.forEach((n) => addNote({ midi: n.midi, at: n.at, tOnset: t, source: 'midi' }));
+      }),
       NS.bus.on('midi:chordname', ({ label }) => { if (mounted) setFeedback(label, 'Chord'); }),
       NS.bus.on('midi:state', () => { if (mounted) updateStatus(); }),
       NS.mic.on('quiet', (ev) => { if (staff) staff.noteOff(ev.tOnset); }),

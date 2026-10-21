@@ -12,6 +12,7 @@
   let on = false;
   let names = [];
   const held = new Map(); // midi -> perf ms it went down
+  const lastOn = new Map(); // midi -> time of its last key-down (to drop doubled messages)
   let chordFired = false;
 
   const supported = () => typeof navigator !== 'undefined' && typeof navigator.requestMIDIAccess === 'function';
@@ -23,16 +24,45 @@
     } catch { return stampMs / 1000; }
   }
 
+  const GROUP_MS = 50;      // another key within this time joins the chord
+  const GROUP_MAX_MS = 150; // a slowly rolled chord still counts as one
+  let group = null;
+  let groupTimer = null;
+  function flushGroup() {
+    const g = group;
+    group = null;
+    if (!g) return;
+    if (g.notes.length === 1) {
+      const n = g.notes[0];
+      const at = audioAt(n.tOnset);
+      NS.bus.emit('mic:onset', { at, tOnset: n.tOnset, rms: n.vel / 127 });
+      NS.input.emit({ midi: n.midi, at, tOnset: n.tOnset, source: 'midi', confident: true, reason: 'midi', rms: n.vel / 127, cents: 0 });
+      checkChord(n.tOnset);
+      return;
+    }
+    NS.bus.emit('midi:chordnotes', { notes: g.notes.map((n) => ({ midi: n.midi, at: audioAt(n.tOnset), tOnset: n.tOnset })) });
+    checkChord(g.notes[g.notes.length - 1].tOnset);
+  }
+
   function onMessage(e) {
     const [status, note, vel] = e.data;
     const cmd = status & 0xf0;
     const stamp = e.timeStamp || performance.now();
     if (cmd === 0x90 && vel > 0) {
+      // Some keyboards send each key twice (two channels, layered sounds). Ignore a second key-down
+      // for a note that is already down, or that came a moment ago.
+      const prev = lastOn.get(note);
+      if (prev != null && stamp - prev < 120) return;
+      lastOn.set(note, stamp);
       held.set(note, stamp);
-      const at = audioAt(stamp);
-      NS.bus.emit('mic:onset', { at, tOnset: stamp, rms: vel / 127 });
-      NS.input.emit({ midi: note, at, tOnset: stamp, source: 'midi', confident: true, reason: 'midi', rms: vel / 127, cents: 0 });
-      checkChord(stamp);
+      // Keys that go down together are a chord: they are a command (or shown as a chord in Free Play),
+      // never notes to judge. So each key waits a moment to see if others join it. A key on its own is
+      // sent with its real press time, so timing (Note Rush) is unaffected.
+      if (!group) group = { first: stamp, notes: [] };
+      group.notes.push({ midi: note, tOnset: stamp, vel });
+      clearTimeout(groupTimer);
+      const wait = Math.max(0, Math.min(GROUP_MS, group.first + GROUP_MAX_MS - stamp));
+      groupTimer = setTimeout(flushGroup, wait);
     } else if (cmd === 0x80 || (cmd === 0x90 && vel === 0)) {
       held.delete(note);
       // The next chord can come once the hand has let go of most of this one.

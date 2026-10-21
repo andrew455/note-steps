@@ -202,3 +202,31 @@
   }
   NS.profilesUi = { openPicker };
 })(typeof window !== 'undefined' ? window : globalThis);
+
+// A house button next to Back on every screen: straight to Home from anywhere.
+(function (root) {
+  const NS = root.NS;
+  if (!NS) return;
+  const ICON = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>';
+  function addHome() {
+    document.querySelectorAll('main.wrap:not([hidden])').forEach((main) => {
+      if (main.dataset.mode === 'home' || main.id === 'home') return;
+      const back = main.querySelector('button.back, #pBackBtn');
+      if (!back || back.parentElement.querySelector('.homebtn')) return;
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'homebtn';
+      b.innerHTML = ICON;
+      b.setAttribute('aria-label', 'Home');
+      b.title = 'Home';
+      b.addEventListener('click', () => { try { NS.audio.stopAll && NS.audio.stopAll(); } catch {} location.hash = '#/'; });
+      back.insertAdjacentElement('afterend', b);
+    });
+  }
+  const css = document.createElement('style');
+  css.textContent = `.homebtn { width: 44px; height: 44px; flex: none; display: inline-grid; place-items: center; border-radius: 12px;
+    border: 1.5px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; margin-left: 6px; }`;
+  document.head.appendChild(css);
+  NS.bus.on('route', () => setTimeout(addHome, 0));
+  new MutationObserver(() => { clearTimeout(addHome.t); addHome.t = setTimeout(addHome, 80); }).observe(document.body, { childList: true, subtree: true });
+})(typeof window !== 'undefined' ? window : globalThis);

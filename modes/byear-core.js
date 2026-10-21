@@ -78,8 +78,10 @@
     cols.reverse();
     const matched = cols.filter((c) => c.kind === 'match').length;
     const total = n;
-    const pct = total ? Math.round((matched / total) * 100) : 0;
-    return { columns: cols, matched, total, pct };
+    // Extra notes count against you: 6 right out of 6 with 3 extras is 6 / 9.
+    const extra = cols.filter((c) => c.kind === 'extra').length;
+    const pct = total ? Math.round((matched / (total + extra)) * 100) : 0;
+    return { columns: cols, matched, total, extra, pct };
   }
 
   function counts(result) {
@@ -164,7 +166,8 @@
   }
 
   function summaryText(result) {
-    return `${result.matched} of ${result.total} notes matched (${result.pct}%)`;
+    const ex = result.extra || 0;
+    return `${result.matched} of ${result.total} notes matched${ex ? `, ${ex} extra note${ex === 1 ? '' : 's'}` : ''} (${result.pct}%)`;
   }
 
   // Up to `max` plain-language differences, in song order.

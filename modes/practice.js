@@ -575,6 +575,13 @@
     const { from, to } = core.listenRange({ phrases: ses.phrases, n: ses.notes.length }, scope, ses.current);
     const items = core.itemsInRange(ses.items, from, to);
     if (!items.length) return;
+    // Hearing it again starts you again from the beginning of what you heard.
+    if (ses.current > from) {
+      ses.current = from;
+      ses.flash = null;
+      ses.hintOn = false;
+      startAttempt();
+    }
     NS.audio.resume();
     const l = { from, to, scope, playingIdx: null, handle: null };
     ses.listen = l;

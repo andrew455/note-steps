@@ -154,6 +154,9 @@
   function backTarget(stack) {
     const s = stack || [];
     const here = basePath(s[s.length - 1]);
+    // A game's own menu or song list always goes back Home (never to a screen inside it, which
+    // would bounce back and forth between the two).
+    if (/^#\/[^/]+$/.test(here) || /^#\/songs\/[^/]+$/.test(here)) return '#/';
     for (let i = s.length - 2; i >= 0; i--) if (basePath(s[i]) !== here) return s[i];
     // Nothing earlier (opened from a link or a reload): a song screen goes to its mode's list.
     const m = /^#\/(practice|perform|ear|byear)\/[^/?]+/.exec(here);
