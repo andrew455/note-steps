@@ -1,0 +1,99 @@
+/* Note Drill and My notes (modes/drill.js, modes/mynotes.js). Uses the tokens defined in index.html. WP9 owns this file. */
+
+/* ---------- Note Drill ---------- */
+/* One whole note, centred; the svg keeps its aspect ratio inside a fixed-height box. */
+.drill-staff.single svg { height: clamp(150px, 46vw, 230px); }
+
+.drill-info { background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 12px 16px; font-size: 0.95rem; }
+.drill-actions:empty { display: none; }
+
+.drill-summary { background: var(--card); border: 1.5px solid var(--line); border-radius: 16px; padding: 18px 16px; display: flex; flex-direction: column; gap: 12px; }
+.drill-summary h2 { font-size: 1.3rem; }
+.drill-celebrate { font-weight: 700; color: var(--good); }
+.drill-rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.drill-rows li { padding: 8px 12px; border-radius: 10px; background: var(--paper); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.drill-rows li.all { background: var(--good-soft); }
+.drill-rows li.all::before { content: "✓ "; color: var(--good); font-weight: 700; }
+
+/* ---------- My notes ---------- */
+.mn-sub { margin-top: -8px; }
+.mn-map svg { display: block; width: 100%; height: auto; }
+.mn-hit { cursor: pointer; }
+.mn-map-letter { fill: var(--muted); font-family: var(--font-body); }
+.mn-played-letter { fill: var(--bad); font-family: var(--font-body); }
+
+/* Notehead state styles (mini staff, mix-ups, detail). Fill plus stroke so each state differs in shape too. */
+.mn-head .mn-notehead { stroke-width: 1.4; }
+.mn-known .mn-notehead { fill: var(--good); stroke: var(--good); }
+.mn-learning .mn-notehead { fill: var(--learn); stroke: var(--learn); }
+.mn-new .mn-notehead { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2; }
+.mn-locked .mn-notehead { fill: none; stroke: var(--line); stroke-width: 1.6; stroke-dasharray: 3 2; }
+.mn-seen .mn-notehead { fill: var(--ink); stroke: var(--ink); }
+.mn-played .mn-notehead { fill: var(--card); stroke: var(--bad); stroke-width: 2.4; }
+
+.mn-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.85rem; color: var(--muted); }
+.mn-legend li { display: inline-flex; align-items: center; gap: 6px; }
+.mn-swatch { width: 14px; height: 10px; border-radius: 50%; display: inline-block; border: 1.6px solid transparent; }
+.mn-leg-known .mn-swatch { background: var(--good); border-color: var(--good); }
+.mn-leg-learning .mn-swatch { background: var(--learn); border-color: var(--learn); }
+.mn-leg-new .mn-swatch { background: var(--accent-soft); border-color: var(--accent); }
+.mn-leg-locked .mn-swatch { background: transparent; border: 1.6px dashed var(--line); }
+.mn-leg-rusty .mn-swatch { width: 8px; height: 8px; background: var(--learn); }
+
+.mn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; }
+.mn-chip {
+  min-height: 44px; min-width: 0; padding: 10px 4px 8px; border-radius: 14px; background: var(--card); border: 1.5px solid var(--line);
+  display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative;
+}
+.mn-chip.mn-locked { background: transparent; border-style: dashed; }
+.mn-ring {
+  --ring: var(--accent);
+  width: 52px; height: 52px; border-radius: 50%; position: relative; display: grid; place-items: center;
+  background: conic-gradient(var(--ring) calc(var(--p, 0) * 1%), var(--line) 0);
+}
+.mn-ring::before { content: ""; position: absolute; inset: 5px; border-radius: 50%; background: var(--card); }
+.mn-chip.mn-locked .mn-ring::before { background: var(--paper); }
+.mn-known .mn-ring { --ring: var(--good); }
+.mn-learning .mn-ring { --ring: var(--learn); }
+.mn-new .mn-ring { --ring: var(--accent); }
+.mn-letter { position: relative; font-family: var(--font-display); font-weight: 800; font-size: 1.35rem; line-height: 1; }
+.mn-oct { position: absolute; right: 12px; bottom: 10px; font-size: 0.7rem; font-weight: 700; color: var(--muted); line-height: 1; }
+.mn-word { font-size: 0.8rem; font-weight: 700; }
+.mn-known .mn-word { color: var(--good); }
+.mn-learning .mn-word { color: var(--learn); }
+.mn-new .mn-word { color: var(--accent); }
+.mn-locked .mn-word, .mn-locked .mn-letter { color: var(--muted); }
+.mn-review { font-size: 0.72rem; font-weight: 700; color: var(--learn); }
+.mn-is-rusty::after { content: ""; position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; border-radius: 50%; background: var(--learn); }
+
+.mn-section { display: flex; flex-direction: column; gap: 10px; }
+.mn-section h3 { font-size: 1.1rem; }
+.mn-mixup { display: flex; gap: 12px; align-items: center; background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 8px 12px 8px 4px; }
+.mn-mix-staff { flex: none; width: 120px; height: auto; }
+.mn-mix-text { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+
+.mn-stages { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.mn-stage { display: flex; flex-direction: column; gap: 6px; }
+.mn-units { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.mn-unit { min-height: 36px; display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--card); font-size: 0.9rem; }
+.mn-unit-notes { font-family: var(--font-display); font-weight: 800; }
+.mn-unit-word { color: var(--muted); font-size: 0.8rem; font-weight: 700; }
+.mn-u-known { border-color: var(--good); }
+.mn-u-known .mn-unit-word { color: var(--good); }
+.mn-u-learning .mn-unit-word { color: var(--learn); }
+.mn-u-new .mn-unit-word, .mn-u-next .mn-unit-word { color: var(--accent); }
+.mn-u-next { border-color: var(--accent); border-style: dashed; }
+.mn-u-later { border-style: dashed; background: transparent; }
+
+.mn-empty { background: var(--card); border: 1.5px solid var(--line); border-radius: 16px; padding: 20px 16px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+
+/* Detail sheet */
+.mn-detail { display: flex; flex-direction: column; gap: 14px; }
+.mn-detail-top { display: flex; gap: 12px; align-items: center; }
+.mn-detail-card { flex: none; width: 128px; padding: 4px; }
+.mn-detail-card svg { width: 100%; height: auto; }
+.mn-detail-text { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.mn-state-line { font-weight: 700; }
+.mn-stats { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; margin: 0; }
+.mn-stats dt { color: var(--muted); font-size: 0.9rem; }
+.mn-stats dd { margin: 0; font-weight: 700; overflow-wrap: anywhere; }

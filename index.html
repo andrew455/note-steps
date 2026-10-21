@@ -9,7 +9,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=Noto+Music&display=swap">
-<link rel="stylesheet" href="perform.css">
 <style>
 /* Layout: one column, staff card on top, feedback in the middle, on-screen keyboard at the bottom. */
 :root {
@@ -32,6 +31,15 @@
   --gold: #b97a06;
   --on-accent: #ffffff;
   --on-gold: #1b1300;
+  --learn: #a85f00;
+  --learn-soft: #fbecd6;
+  --listen: #b7791f;
+  --listen-soft: #fff1cc;
+  --key-playing: #ffe7a3;
+  --shape: #7a8396;
+  --song: #2f62d8;
+  --yours: #c8333d;
+  --match: #1f8a5b;
   --font-display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
   --font-body: "Atkinson Hyperlegible", "Helvetica Neue", system-ui, sans-serif;
   --font-music: "Noto Music", "Bravura", "Apple Symbols", serif;
@@ -53,6 +61,15 @@
     --key-white: #e9ecf2;
     --key-black: #0b0d12;
     --gold: #f2b84b;
+    --learn: #f2b04c;
+    --learn-soft: #3d2f17;
+    --listen: #f0b955;
+    --listen-soft: #3d3220;
+    --key-playing: #6b5420;
+    --shape: #8d96a8;
+    --song: #6e98ff;
+    --yours: #ff6b74;
+    --match: #4cc98f;
     color-scheme: dark;
   }
 }
@@ -186,92 +203,48 @@ button:focus-visible, .lesson:focus-visible { outline: 3px solid var(--accent); 
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
+<link rel="stylesheet" href="core/ui.css">
+<link rel="stylesheet" href="modes/practice.css">
+<link rel="stylesheet" href="modes/earfirst.css">
+<link rel="stylesheet" href="modes/freeplay.css">
+<link rel="stylesheet" href="modes/mastery.css">
+<link rel="stylesheet" href="modes/byear.css">
+<link rel="stylesheet" href="perform.css">
 </head>
 <body>
 
-<main class="wrap screen" id="home">
-  <section class="hero">
-    <svg class="hero-staff" viewBox="0 0 360 90" aria-hidden="true">
-      <g stroke="currentColor" stroke-width="1.2" opacity="0.55">
-        <line x1="0" x2="360" y1="20" y2="20"/><line x1="0" x2="360" y1="32" y2="32"/><line x1="0" x2="360" y1="44" y2="44"/><line x1="0" x2="360" y1="56" y2="56"/><line x1="0" x2="360" y1="68" y2="68"/>
-      </g>
-      <text x="4" y="66" font-size="62" fill="currentColor" font-family="Noto Music, serif">𝄞</text>
-      <g fill="currentColor" id="heroNotes"></g>
-    </svg>
-    <span class="eyebrow">Learn to read music</span>
-    <h1>Note Steps</h1>
-    <p class="muted">Read the note on the staff, then play it on your piano or keyboard. Your phone listens and tells you if you got it right. <strong>Practice</strong> waits for you on every note. <strong>Perform</strong> scrolls the song past a line in time, Guitar Hero style, and scores you. Do well to unlock the next song.</p>
-  </section>
-
-  <div class="levels" id="levels"></div>
-
-  <p class="tip"><strong>Finding middle C:</strong> look for a group of two black keys near the middle of your keyboard. The white key just to the left of them is C. On the staff, middle C sits on its own short line just below the five lines.</p>
-
-  <section class="qr" id="qrBox" hidden>
-    <div class="qr-code" id="qrCode"></div>
-    <div class="meta">
-      <strong>Open on your phone</strong>
-      <span class="muted">Point your phone's camera at this code, then prop the phone near your keyboard.</span>
-      <span class="url" id="qrUrl"></span>
-    </div>
-  </section>
-</main>
-
-<main class="wrap screen" id="play" hidden>
-  <div class="topbar">
-    <button class="back" id="backBtn" aria-label="Back to lessons">←</button>
-    <div class="title">
-      <span class="eyebrow" id="playEyebrow">Lesson</span>
-      <h2 id="playTitle"></h2>
-    </div>
-    <span class="count" id="count"></span>
-  </div>
-  <div class="progress"><div id="progressBar"></div></div>
-
-  <div class="staff-card">
-    <svg id="staff" role="img" aria-label="Music staff"></svg>
-  </div>
-
-  <div class="feedback" id="feedback" aria-live="polite">
-    <span class="big" id="fbBig"></span>
-    <span id="fbSmall" class="muted"></span>
-  </div>
-
-  <div class="controls">
-    <button class="btn primary" id="micBtn">🎤 Start listening</button>
-    <div class="meter" id="meter" data-mic-meter-wrap hidden><span>Mic</span><div class="bar"><div id="meterBar" data-mic-meter></div></div></div>
-  </div>
-  <div class="controls">
-    <button class="btn" id="hearBtn">Hear the note</button>
-    <button class="btn" id="hintBtn">Show me the key</button>
-    <button class="btn on" id="namesBtn" data-names-toggle aria-pressed="true">Note names: on</button>
-  </div>
-  <p class="notice" id="micNotice" data-mic-notice hidden></p>
-
-  <div>
-    <div class="keyboard" id="keyboard" aria-label="On-screen keyboard. Tap a key to play it."></div>
-    <p class="muted" style="font-size:0.85rem;margin-top:8px">The blue key shows the note your phone heard. No piano nearby? You can also tap these keys.</p>
-  </div>
-</main>
-
-<div class="overlay" id="doneOverlay" hidden>
-  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="doneTitle">
-    <div class="stars" id="doneStars">★★★</div>
-    <h2 id="doneTitle">Well played!</h2>
-    <p class="muted" id="doneText"></p>
-    <div class="row">
-      <button class="btn" id="againBtn">Play again</button>
-      <button class="btn primary" id="nextBtn">Next lesson</button>
-    </div>
-    <button class="btn" id="listBtn">All lessons</button>
-  </div>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<div id="app"></div>
+<!-- Screens are drawn by core/shell.js and the modes; perform.js adds its own #perform screen. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
 <script src="pitch.js"></script>
+<script src="core/util.js"></script>
+<script src="core/ns.js"></script>
+<script src="core/notation.js"></script>
+<script src="core/shapes.js"></script>
+<script src="core/mastery.js"></script>
+<script src="core/curriculum.js"></script>
 <script src="songs.js"></script>
-<script src="app.js"></script>
-<!-- Modes: each adds its own screen and registers with NoteSteps.registerMode(). -->
+<script src="core/store.js"></script>
+<script src="core/listener.js"></script>
+<script src="core/audio.js"></script>
+<script src="core/keyboard.js"></script>
+<script src="core/staff.js"></script>
+<script src="chords.js"></script>
+<script src="chord-card.js"></script>
+<script src="core/ui.js"></script>
+<script src="core/chordbar.js"></script>
+<script src="core/shell.js"></script>
+<script src="core/compat.js"></script>      <!-- defines window.NoteSteps before perform.js -->
+<script src="modes/practice.js"></script>
+<script src="modes/ear-core.js"></script>
+<script src="modes/earfirst.js"></script>
+<script src="modes/freeplay-core.js"></script>
+<script src="modes/freeplay.js"></script>
+<script src="modes/drill.js"></script>
+<script src="modes/mynotes.js"></script>
+<script src="modes/byear-core.js"></script>
+<script src="modes/byear.js"></script>
 <script src="perform.js"></script>
+<script src="app.js"></script>              <!-- NS.shell.start(); if NS.isTest load tests/fakemic.js -->
 </body>
 </html>

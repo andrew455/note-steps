@@ -1,0 +1,73 @@
+/* Practice and Hear It First (modes/practice.js). Uses the tokens defined in index.html. WP6 owns this file.
+   Everything is scoped to the Practice screen (main[data-mode="practice"]). */
+
+[data-mode="practice"] .pr-slot { display: contents; }
+
+/* ---------- intro card ---------- */
+.pr-intro {
+  background: var(--card); border: 1.5px solid var(--line); border-radius: 16px;
+  padding: 14px 16px; display: flex; flex-direction: column; gap: 10px;
+}
+.pr-intro-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+.pr-intro-head h3 { font-size: 1.1rem; font-weight: 800; flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.pr-origin { font-size: 0.9rem; }
+.pr-sub { font-size: 0.95rem; }
+.pr-pill {
+  display: inline-flex; align-items: center; min-height: 28px; padding: 3px 10px; border-radius: 999px;
+  font-size: 0.82rem; font-weight: 700; white-space: nowrap;
+  background: var(--accent-soft); color: var(--accent); border: 1.5px solid transparent;
+}
+.pr-pill[data-tone="easy"] { background: var(--good-soft); color: var(--good); }
+.pr-pill[data-tone="stretch"], .pr-pill[data-tone="tough"] { background: var(--learn-soft); color: var(--learn); }
+.pr-pill[data-tone="locked"] { background: transparent; color: var(--muted); border: 1.5px dashed var(--line); }
+
+.pr-uses { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 0.9rem; }
+.pr-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.pr-chip {
+  min-width: 44px; min-height: 40px; padding: 3px 8px; border-radius: 10px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1;
+  background: var(--paper); border: 1.5px solid var(--line);
+}
+.pr-chip strong { font-family: var(--font-display); font-size: 1rem; font-weight: 800; }
+.pr-chip span { font-size: 0.68rem; color: var(--muted); }
+.pr-chip[data-state="known"] { background: var(--good-soft); border-color: var(--good); }
+.pr-chip[data-state="known"] strong { color: var(--good); }
+.pr-chip[data-state="learning"] { background: var(--learn-soft); border-color: var(--learn); }
+.pr-chip[data-state="learning"] strong { color: var(--learn); }
+.pr-chip[data-state="new"] { background: var(--accent-soft); border-color: var(--accent); }
+.pr-chip[data-state="new"] strong { color: var(--accent); }
+.pr-chip[data-state="locked"] { background: transparent; border-style: dashed; }
+.pr-chip[data-state="locked"] strong { color: var(--muted); }
+
+.pr-intro-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.pr-intro-actions .btn { flex: 1 1 140px; }
+
+/* ---------- listen row ---------- */
+.pr-listen .btn[data-ref="listenBtn"] { min-width: 112px; }
+.pr-listen .btn[data-ref="listenBtn"].on { background: var(--listen-soft); border-color: var(--listen); color: var(--ink); }
+[data-mode="practice"] .pr-listen .speed { align-self: center; max-width: 100%; }
+[data-mode="practice"] .pr-listen .speed button { min-width: 0; padding: 8px 12px; font-size: 0.92rem; }
+[data-mode="practice"] .btn.chip { min-height: 44px; } /* settings chips are tap targets here */
+[data-mode="practice"] .controls .btn { max-width: 100%; }
+
+/* ---------- keyboard: the key the app is playing during Listen ---------- */
+[data-mode="practice"] .keyboard .white.playing { background: var(--key-playing); box-shadow: inset 0 -6px 0 var(--listen); }
+[data-mode="practice"] .keyboard .black.playing { background: var(--listen); }
+.pr-kb-tip { font-size: 0.85rem; margin-top: 8px; }
+
+/* ---------- staff: the rescue hint pulses twice (colour only under reduced motion) ---------- */
+[data-mode="practice"] .shape-rescue { animation: pr-pulse 0.5s ease-in-out 2; }
+@keyframes pr-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@media (prefers-reduced-motion: reduce) {
+  [data-mode="practice"] .shape-rescue { animation: none; }
+}
+
+/* ---------- finish dialog ---------- */
+.pr-done .dialog { gap: 12px; }
+.pr-done .dialog > .btn { align-self: center; }
+.pr-summary { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 0.95rem; }
+.pr-summary[hidden] { display: none; }
+.pr-sum-stronger { color: var(--ink); }
+.pr-sum-known { color: var(--good); font-weight: 700; }
+.pr-sum-drill .btn { white-space: normal; }
+.pr-chords:empty { display: none; }

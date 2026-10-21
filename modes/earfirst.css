@@ -1,0 +1,154 @@
+/* Ear First (modes/earfirst.js). Existing tokens only; beads use --gold. Everything is scoped to .ef
+   (the mode's <main>) or uses the ef- prefix. 375 px first. */
+
+.ef .ef-sub { font-size: 0.95rem; }
+.ef .ef-small { font-size: 0.85rem; }
+.ef .ef-card {
+  background: var(--card); border: 1.5px solid var(--line); border-radius: 16px;
+  padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0;
+}
+.ef .ef-card h3 { font-size: 1.1rem; }
+.ef .ef-link {
+  align-self: flex-start; min-height: 44px; padding: 0 2px; color: var(--accent); font-weight: 700;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.ef .ef-more { display: flex; flex-wrap: wrap; gap: 10px; }
+.ef .ef-reps { font-weight: 700; font-variant-numeric: tabular-nums; }
+.ef .ef-foot { display: flex; flex-direction: column; gap: 10px; border-top: 1.5px solid var(--line); padding-top: 14px; }
+.ef .ef-how p { line-height: 1.55; }
+
+/* long tune titles in the top bar stay on one line */
+.ef .topbar .eyebrow { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* the feedback panel takes no room while it has nothing to say (it stays a live region) */
+.ef .feedback:has(> .big:empty):has(> .muted:empty) { min-height: 0; padding: 0; background: transparent; }
+
+/* ---------- Hub: today's ten minutes ---------- */
+.ef .ef-trow { display: flex; align-items: center; gap: 12px; min-height: 48px; }
+.ef .ef-tmeta { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.ef .ef-tmeta .muted { font-size: 0.9rem; overflow-wrap: anywhere; }
+.ef .ef-sdot { width: 14px; height: 14px; border-radius: 50%; flex: none; border: 2px solid var(--line); background: transparent; }
+.ef .ef-sdot.done { background: var(--good); border-color: var(--good); }
+.ef .ef-sdot.now { border-color: var(--accent); background: var(--accent-soft); }
+.ef .ef-hand-line { font-size: 0.9rem; }
+.ef .ef-first { border-style: dashed; }
+.ef .ef-first .btn { align-self: flex-start; }
+
+/* ---------- Hub: path ---------- */
+.ef .ef-path .lesson { grid-template-columns: 40px minmax(0, 1fr); }
+.ef .ef-path .actions { flex-direction: column; align-items: stretch; }
+.ef .ef-steps { display: flex; flex-wrap: wrap; gap: 6px; }
+.ef .ef-chip { min-height: 36px; padding: 6px 10px; font-size: 0.85rem; }
+.ef .ef-chip:disabled { opacity: 0.45; }
+.ef .ef-pill {
+  display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 0.8rem; font-weight: 700;
+  background: var(--accent-soft); color: var(--accent);
+}
+.ef .ef-pill.good { background: var(--good-soft); color: var(--good); }
+.ef .ef-pill.learn { background: var(--learn-soft); color: var(--learn); }
+
+/* ---------- phrase map ---------- */
+.ef .ef-map { display: flex; gap: 6px; overflow-x: auto; padding: 2px 2px 6px; scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
+.ef .ef-ph {
+  flex: none; min-width: 40px; min-height: 32px; padding: 4px 10px; border-radius: 999px;
+  display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem;
+  background: var(--paper); color: var(--muted); border: 2px solid var(--line);
+}
+button.ef-ph { min-height: 44px; }
+.ef .ef-ph.in { border-color: var(--accent); color: var(--accent); background: var(--card); }
+.ef .ef-ph.learned { background: var(--good); border-color: var(--good); color: var(--card); }
+.ef .ef-ph.cur { outline: 3px solid var(--accent); outline-offset: 1px; }
+.ef .ef-ph.pulse { border-color: var(--accent); animation: ef-pulse 1s ease-in-out infinite; }
+.ef .ef-ph.pulse.learned { box-shadow: 0 0 0 3px var(--accent-soft); }
+.ef .ef-map.big .ef-ph { min-width: 52px; min-height: 44px; font-size: 1rem; }
+.ef-celebrate .ef-map { justify-content: center; flex-wrap: wrap; }
+.ef-celebrate .ef-ph { min-width: 40px; min-height: 32px; padding: 4px 10px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; background: var(--good); color: var(--card); }
+@keyframes ef-pulse { 50% { box-shadow: 0 0 0 5px var(--accent-soft); } }
+
+/* ---------- call / response card ---------- */
+.ef .ef-call { gap: 8px; }
+.ef .ef-state { font-family: var(--font-display); font-weight: 800; font-size: 1.6rem; line-height: 1.1; }
+.ef .ef-intro:empty { display: none; }
+.ef .ef-dots { display: block; width: 100%; height: auto; max-height: 160px; }
+.ef .ef-dot rect { fill: var(--line); transition: fill 0.12s ease; }
+.ef .ef-dot.listen rect { fill: var(--listen); }
+.ef .ef-dot.heard rect { fill: var(--listen-soft); stroke: var(--listen); stroke-width: 1; }
+.ef .ef-dot.good rect { fill: var(--good); }
+.ef .ef-dot.bad rect { fill: var(--bad); }
+.ef .ef-dot.ef-shake { animation: ef-shake 0.3s ease; }
+.ef .ef-finger { font-size: 13px; font-weight: 700; fill: var(--ink); }
+.ef .ef-dot.good .ef-finger, .ef .ef-dot.bad .ef-finger { fill: var(--card); }
+.ef .ef-arrow { stroke: var(--shape); stroke-width: 2; }
+.ef .ef-shape-word { font-size: 11px; fill: var(--shape); font-weight: 700; }
+@keyframes ef-shake { 20% { transform: translateX(-4px); } 50% { transform: translateX(4px); } 80% { transform: translateX(-2px); } }
+
+.ef .ef-offer {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 14px;
+  background: var(--learn-soft); border: 1.5px solid var(--learn); font-weight: 700;
+}
+.ef .ef-buttons .btn { flex: 1 1 auto; }
+.ef .ef-done .btn { flex: 1 1 auto; }
+
+/* ---------- bead counter ---------- */
+.ef .ef-beads { display: flex; align-items: center; gap: 12px; }
+.ef .ef-beads svg { flex: 1; min-width: 0; height: 44px; display: block; }
+.ef .ef-beads-text { flex: none; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ef .ef-rod { stroke: var(--line); stroke-width: 3; stroke-linecap: round; }
+.ef .ef-bead { fill: var(--line); stroke: var(--card); stroke-width: 2; transition: transform 0.3s ease, fill 0.3s ease; }
+.ef .ef-bead.on { fill: var(--gold); }
+.ef .ef-bead.bonus { fill: var(--card); stroke: var(--gold); stroke-width: 3; }
+
+/* ---------- keyboard and hand card ---------- */
+.ef .ef-kbwrap { display: flex; flex-direction: column; gap: 6px; }
+.ef .ef-minikb { height: 96px; }
+.ef .ef-toggle { display: flex; align-items: center; gap: 10px; min-height: 44px; font-weight: 700; }
+.ef .ef-toggle input { width: 22px; height: 22px; accent-color: var(--accent); }
+.ef .ef-hand .btn { align-self: flex-start; }
+.ef .ef-know .controls .btn { flex: 1 1 auto; }
+
+/* ---------- listen / room ---------- */
+.ef .ef-ribbon { display: block; width: 100%; height: auto; max-height: 90px; }
+.ef .ef-rb { fill: var(--line); }
+.ef .ef-rb.past { fill: var(--listen-soft); }
+.ef .ef-rb.on { fill: var(--listen); }
+.ef .ef-now h3 { font-size: 1.25rem; }
+.ef .ef-transport .btn { min-width: 56px; }
+.ef .ef-heard { font-weight: 700; }
+.ef .ef-playlist p { overflow-wrap: anywhere; }
+.ef audio { display: none; }
+
+/* ---------- reveal ---------- */
+.ef .ef-pager { display: flex; justify-content: space-between; gap: 10px; }
+.ef .ef-reveal-steps .ef-trow { align-items: flex-start; }
+.ef .ef-reveal-steps .ef-sdot { margin-top: 4px; }
+.ef .ef-reveal-steps .controls { margin-top: 4px; }
+
+/* ---------- rhythm remix ---------- */
+.ef .ef-bars-row { display: flex; align-items: center; gap: 10px; }
+.ef .ef-bars-label { width: 40px; flex: none; font-size: 0.85rem; font-weight: 700; color: var(--muted); }
+.ef .ef-bars { flex: 1; min-width: 0; display: flex; gap: 4px; height: 26px; }
+.ef .ef-bar { flex-basis: 0; min-width: 4px; border-radius: 6px; background: var(--line); }
+.ef .ef-bar.listen { background: var(--listen); }
+.ef .ef-bar.good { background: var(--good); }
+.ef .ef-bar.bad { background: var(--bad); }
+.ef .ef-bar.worst { outline: 3px solid var(--bad); outline-offset: 1px; }
+.ef .ef-patterns .chip { min-height: 36px; }
+
+/* ---------- concert ---------- */
+.ef .ef-program { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 6px; }
+.ef .ef-program li.now { font-weight: 700; color: var(--accent); }
+.ef .ef-program li.clean { color: var(--good); font-weight: 700; }
+.ef .ef-program li.clean::after { content: " ✓ clean"; }
+.ef .ef-program li.played::after { content: " · played"; color: var(--muted); }
+
+/* ---------- settings sheet ---------- */
+.ef-settings { display: flex; flex-direction: column; gap: 8px; }
+.ef-settings .ef-set-label { font-weight: 700; margin-top: 6px; }
+.ef-help { display: flex; flex-direction: column; gap: 8px; }
+.ef-help .btn { justify-content: flex-start; }
+
+/* Reduced motion: colour changes only (the global rule also stops animations and transitions). */
+@media (prefers-reduced-motion: reduce) {
+  .ef .ef-dot.ef-shake { animation: none; }
+  .ef .ef-ph.pulse { animation: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+  .ef .ef-bead { transition: none; }
+}

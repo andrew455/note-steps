@@ -1,0 +1,501 @@
+[
+ {
+  "id": "hot-cross-buns",
+  "title": "Hot Cross Buns",
+  "origin": "Traditional English street cry, 18th c.",
+  "level": 1,
+  "notesUsed": [
+   "C4",
+   "D4",
+   "E4"
+  ],
+  "newNotes": [
+   "C4",
+   "D4",
+   "E4"
+  ],
+  "timeSig": "4/4",
+  "pickupBeats": 0,
+  "bpm": 96,
+  "notes": "E4:q D4:q C4:h | E4:q D4:q C4:h | C4:e C4:e C4:e C4:e D4:e D4:e D4:e D4:e | E4:q D4:q C4:h",
+  "teachingNote": "Three neighbouring notes stepping down: line, space, ledger line. Bar 3 is a fast run of repeated Cs then Ds."
+ },
+ {
+  "id": "au-clair-de-la-lune",
+  "title": "Au Clair de la Lune (first phrase)",
+  "origin": "Traditional French folk song, 18th c.",
+  "level": 1,
+  "notesUsed": [
+   "C4",
+   "D4",
+   "E4"
+  ],
+  "newNotes": [],
+  "timeSig": "4/4",
+  "pickupBeats": 0,
+  "bpm": 90,
+  "notes": "C4:q C4:q C4:q D4:q | E4:h D4:h | C4:q E4:q D4:q D4:q | C4:w | C4:q C4:q C4:q D4:q | E4:h D4:h | C4:q E4:q D4:q D4:q | C4:w",
+  "teachingNote": "Only C, D and E, the same as Hot Cross Buns, but it moves upward this time. The C-E skip in bar 3 is your first skip. This is just the opening phrase played twice; the middle section goes below middle C, so it is left out."
+ },
+ {
+  "id": "mary-had-a-little-lamb",
+  "title": "Mary Had a Little Lamb",
+  "origin": "American traditional melody, 1830s",
+  "level": 2,
+  "notesUsed": [
+   "C4",
+   "D4",
+   "E4",
+   "G4"
+  ],
+  "newNotes": [
+   "G4"
+  ],
+  "timeSig": "4/4",
+  "pickupBeats": 0,
+  "bpm": 100,
+  "notes": "E4:q D4:q C4:q D4:q | E4:q E4:q E4:h | D4:q D4:q D4:h | E4:q G4:q G4:h | E4:q D4:q C4:q D4:q | E4:q E4:q E4:q E4:q | D4:q D4:q E4:q D4:q | C4:w",
+  "teachingNote": "One new note: G, on the second line. It is a skip up from E (line to line). Everything else is C, D and E, which you already know."
+ },
+ {
+  "id": "ode-to-joy",
+  "title": "Ode to Joy",
+  "origin": "Ludwig van Beethoven, Symphony No. 9, 1824",
+  "level": 2,
+  "notesUsed": [
+   "C4",
+   "D4",
+   "E4",
+   "F4",
+   "G4"
+  ],
+  "newNotes": [
+   "F4",
+   "G4"
+  ],
+  "timeSig": "4/4",
+  "pickupBeats": 0,
+  "bpm": 100,
+  "notes": "E4:q E4:q F4:q G4:q | G4:q F4:q E4:q D4:q | C4:q C4:q D4:q E4:q | E4:q. D4:e D4:h | E4:q E4:q F4:q G4:q | G4:q F4:q E4:q D4:q | C4:q C4:q D4:q E4:q | D4:q. C4:e C4:h",
+  "teachingNote": "F is new: the space between E and G. Almost every move is a step. Watch the dotted rhythm at the end of each line (long, short, held)."
+ },
+ {
+  "id": "go-tell-aunt-rhody",
+  "title": "Go Tell Aunt Rhody",
+  "origin": "American folk song; melody from Jean-Jacques Rousseau, 1752",
+  "level": 2,
+  "notesUsed": [
+   "C4",
+   "D4",
+   "E4",
+   "F4",
+   "G4"
+  ],
+  "newNotes": [
+   "F4",
+   "G4"
+  ],
+  "timeSig": "4/4",
+  "pickupBeats": 0,
+  "bpm": 92,
+  "notes": "E4:h E4:q D4:q | C4:h C4:h | D4:h D4:q F4:q | E4:q D4:q C4:h | G4:h G4:q F4:q | E4:h E4:h | D4:q C4:q D4:q E4:q | C4:w",
+  "teachingNote": "More practice with F and G. Bar 3 has a D-to-F skip (space to space). Bar 5 starts high on G and steps back down."
+ },
+ {
+  "id": "lightly-row",
+  "title": "Lightly Row",
+  "origin": "German folk song (H\u00e4nschen klein), 19th c.",
+  "level": 2,
+  "notesUsed": [
+   "C4",
+   "D4",
+   "E4",
+   "F4",
+   "G4"
+  ],
+  "newNotes": [
+   "F4",
+   "G4"
+  ],
+  "timeSig": "4/4",
+  "pickupBeats": 0,
+  "bpm": 104,
+  "notes": "G4:q E4:q E4:h | F4:q D4:q D4:h | C4:q D4:q E4:q F4:q | G4:q G4:q G4:h | G4:q E4:q E4:h | F4:q D4:q D4:h | C4:q E4:q G4:q G4:q | C4:w | D4:q D4:q D4:q D4:q | D4:q E4:q F4:h | E4:q E4:q E4:q E4:q | E4:q F4:q G4:h | G4:q E4:q E4:h | F4:q D4:q D4:h | C4:q E4:q G4:q G4:q | C4:w",
+  "teachingNote": "A good tune for skips: G down to E and F down to D (line to line, space to space). Bar 7 climbs C-E-G, a triad. The middle section is repeated notes followed by steps."
+ },
+ {
+  "id": "jingle-bells-chorus",
+  "title": "Jingle Bells (chorus)",
+  "origin": "James Lord Pierpont, 1857",
+  "level": 2,
+  "notesUsed": [
+   "C4",
+   "D4",
+   "E4",
+   "F4",
+   "G4"
+  ],
+  "newNotes": [
+   "F4",
+   "G4"
+  ],
+  "timeSig": "4/4",
+  "pickupBeats": 0,
+  "bpm": 112,
+  "notes": "E4:q E4:q E4:h | E4:q E4:q E4:h | E4:q G4:q C4:q. D4:e | E4:w | F4:q F4:q F4:q. F4:e | F4:q E4:q E4:q E4:e E4:e | E4:q D4:q D4:q E4:q | D4:h G4:h | E4:q E4:q E4:h | E4:q E4:q E4:h | E4:q G4:q C4:q. D4:e | E4:w | F4:q F4:q F4:q. F4:e | F4:q E4:q E4:q E4:e E4:e | G4:q G4:q F4:q D4:q | C4:w",
+  "teachingNote": "Lots of repeated Es, so it's easy reading. The one jump is G down to C (a leap from line to ledger). The chorus only needs C to G, so it sits here and not at level 3."
+ },
+ {
+  "id": "all-my-little-ducklings",
+  "title": "All My Little Ducklings",
+  "origin": "Traditional German children's song (Alle meine Entchen), 19th c.",
+  "level": 3,
+  "notesUsed": [
+   "C4",
+   "D4",
+   "E4",
+   "F4",
+   "G4",
+   "A4"
+  ],
+  "newNotes": [
+   "A4"
+  ],
+  "timeSig": "4/4",
+  "pickupBeats": 0,
+  "bpm": 96,
+  "notes": "C4:q D4:q E4:q F4:q | G4:h G4:h | A4:q A4:q A4:q A4:q | G4:w | A4:q A4:q A4:q A4:q | G4:w | F4:q F4:q F4:q F4:q | E4:h E4:h | D4:q D4:q D4:q D4:q | C4:w",
+  "teachingNote": "A is the new note, in the space just above G. It comes four times in a row, so you see it again and again. The tune climbs the steps C to G, then walks back down one note per bar."
+ },
+ {
+  "id": "twinkle-twinkle",
+  "title": "Twinkle Twinkle Little Star",
+  "origin": "French melody Ah! vous dirai-je, maman, 1761",
+  "level": 3,
+  "notesUsed": [
+   "C4",
+   "D4",
+   "E4",
+   "F4",
+   "G4",
+   "A4"
+  ],
+  "newNotes": [
+   "A4"
+  ],
+  "timeSig": "4/4",
+  "pickupBeats": 0,
+  "bpm": 96,
+  "notes": "C4:q C4:q G4:q G4:q | A4:q A4:q G4:h | F4:q F4:q E4:q E4:q | D4:q D4:q C4:h | G4:q G4:q F4:q F4:q | E4:q E4:q D4:h | G4:q G4:q F4:q F4:q | E4:q E4:q D4:h | C4:q C4:q G4:q G4:q | A4:q A4:q G4:h | F4:q F4:q E4:q E4:q | D4:q D4:q C4:h",
+  "teachingNote": "The tune opens with a big leap from C up to G. After that it steps down in pairs of repeated notes, which makes the reading easy."
+ },
+ {
+  "id": "london-bridge",
+  "title": "London Bridge",
+  "origin": "Traditional English nursery melody, 18th c.",
+  "level": 3,
+  "notesUsed": [
+   "C4",
+   "D4",
+   "E4",
+   "F4",
+   "G4",
+   "A4"
+  ],
+  "newNotes": [
+   "A4"
+  ],
+  "timeSig": "4/4",
+  "pickupBeats": 0,
+  "bpm": 104,
+  "notes": "G4:q. A4:e G4:q F4:q | E4:q F4:q G4:h | D4:q E4:q F4:h | E4:q F4:q G4:h | G4:q. A4:e G4:q F4:q | E4:q F4:q G4:h | D4:h G4:h | E4:q C4:h.",
+  "teachingNote": "Short three-note step patterns. A shows up as a quick upper neighbour of G. The ending has two leaps, D up to G and then E down to C."
+ },
+ {
+  "id": "old-macdonald",
+  "title": "Old MacDonald Had a Farm",
+  "origin": "Traditional American folk song, early 20th c. (older English roots)",
+  "level": 3,
+  "notesUsed": [
+   "C4",
+   "D4",
+   "F4",
+   "G4",
+   "A4"
+  ],
+  "newNotes": [
+   "A4"
+  ],
+  "timeSig": "4/4",
+  "pickupBeats": 0,
+  "bpm": 108,
+  "notes": "F4:q F4:q F4:q C4:q | D4:q D4:q C4:h | A4:q A4:q G4:q G4:q | F4:h. C4:q | F4:q F4:q F4:q C4:q | D4:q D4:q C4:h | A4:q A4:q G4:q G4:q | F4:w",
+  "teachingNote": "Set in F position, but there is no B-flat, so you only play white keys. It is built on F and has a leap from F down to C. The last C in bar 4 is the pickup into the second line."
+ },
+ {
+  "id": "c-scale-up",
+  "title": "C Major Scale Up",
+  "origin": "Scale exercise (no melody copyright)",
+  "level": 4,
+  "notesUsed": [
+   "C4",
+   "D4",
+   "E4",
+   "F4",
+   "G4",
+   "A4",
+   "B4",
+   "C5"
+  ],
+  "newNotes": [
+   "B4",
+   "C5"
+  ],
+  "timeSig": "3/4",
+  "pickupBeats": 0,
+  "bpm": 80,
+  "notes": "C4:q D4:q E4:q | F4:q G4:q A4:q | B4:q C5:h",
+  "teachingNote": "New notes: B on the middle line and high C in the space above it. You play every step from middle C to high C, one note per beat, in groups of three."
+ },
+ {
+  "id": "c-scale-down",
+  "title": "C Major Scale Down",
+  "origin": "Scale exercise (no melody copyright)",
+  "level": 4,
+  "notesUsed": [
+   "C4",
+   "D4",
+   "E4",
+   "F4",
+   "G4",
+   "A4",
+   "B4",
+   "C5"
+  ],
+  "newNotes": [
+   "B4",
+   "C5"
+  ],
+  "timeSig": "3/4",
+  "pickupBeats": 0,
+  "bpm": 80,
+  "notes": "C5:q B4:q A4:q | G4:q F4:q E4:q | D4:q C4:h",
+  "teachingNote": "The same steps going down. This trains your eye to read from high C back to middle C."
+ },
+ {
+  "id": "amazing-grace",
+  "title": "Amazing Grace (first phrase)",
+  "origin": "Hymn tune New Britain, American, published 1835",
+  "level": 4,
+  "notesUsed": [
+   "C4",
+   "D4",
+   "F4",
+   "G4",
+   "A4",
+   "C5"
+  ],
+  "newNotes": [
+   "C5"
+  ],
+  "timeSig": "3/4",
+  "pickupBeats": 1,
+  "bpm": 76,
+  "notes": "C4:q | F4:h A4:e F4:e | A4:h G4:q | F4:h D4:q | C4:h C4:q | F4:h A4:e F4:e | A4:h G4:q | C5:h.",
+  "teachingNote": "Slow and singing, in F position. It uses no B-flat, so it is all white keys. It opens with a leap from C up to F and ends by reaching up to high C. Begins with a one-beat pickup."
+ },
+ {
+  "id": "can-can",
+  "title": "Can-Can (Galop)",
+  "origin": "Jacques Offenbach, Orpheus in the Underworld, 1858",
+  "level": 4,
+  "notesUsed": [
+   "C4",
+   "D4",
+   "E4",
+   "F4",
+   "G4",
+   "A4",
+   "B4",
+   "C5"
+  ],
+  "newNotes": [
+   "B4",
+   "C5"
+  ],
+  "timeSig": "4/4",
+  "pickupBeats": 0,
+  "bpm": 120,
+  "notes": "C4:h D4:e F4:e E4:e D4:e | G4:q G4:q G4:e A4:e E4:e F4:e | D4:q D4:q D4:e F4:e E4:e D4:e | C4:e C5:e B4:e A4:e G4:e F4:e E4:e D4:e | C4:h D4:e F4:e E4:e D4:e | G4:q G4:q G4:e A4:e E4:e F4:e | D4:q D4:q D4:e F4:e E4:e D4:e | C4:e G4:e D4:e E4:e C4:h",
+  "teachingNote": "Fast and fun. Bar 4 is an octave leap up to high C followed by a full scale down. Use the 50% speed setting first."
+ },
+ {
+  "id": "silent-night",
+  "title": "Silent Night",
+  "origin": "Franz Xaver Gruber, 1818",
+  "level": 5,
+  "notesUsed": [
+   "E4",
+   "G4",
+   "A4",
+   "B4",
+   "C5",
+   "D5"
+  ],
+  "newNotes": [
+   "D5"
+  ],
+  "timeSig": "6/8",
+  "pickupBeats": 0,
+  "bpm": 84,
+  "notes": "G4:q. A4:e G4:q | E4:h. | G4:q. A4:e G4:q | E4:h. | D5:h D5:q | B4:h. | C5:h C5:q | G4:h. | A4:h A4:q | C5:q. B4:e A4:q | G4:q. A4:e G4:q | E4:h. | A4:h A4:q | C5:q. B4:e A4:q | G4:q. A4:e G4:q | E4:h.",
+  "teachingNote": "D5, on the fourth line, is the new note. It arrives with a leap from E. The rest is gentle steps around G and A. In 6/8 each bar adds up to 3 quarter-note beats, and bpm counts quarter notes."
+ },
+ {
+  "id": "auld-lang-syne",
+  "title": "Auld Lang Syne",
+  "origin": "Traditional Scottish melody, 18th c.",
+  "level": 5,
+  "notesUsed": [
+   "C4",
+   "D4",
+   "F4",
+   "G4",
+   "A4",
+   "C5",
+   "D5"
+  ],
+  "newNotes": [
+   "D5"
+  ],
+  "timeSig": "4/4",
+  "pickupBeats": 1,
+  "bpm": 80,
+  "notes": "C4:q | F4:q. F4:e F4:q A4:q | G4:q. F4:e G4:q A4:q | F4:q. F4:e A4:q C5:q | D5:h. D5:q | C5:q. A4:e A4:q F4:q | G4:q. F4:e G4:q A4:q | F4:q. D4:e D4:q C4:q | F4:w",
+  "teachingNote": "A five-note (pentatonic) tune in F position with no B-flat, so it is all white keys. The dotted long-short rhythm repeats all through. It climbs F-A-C-D up to the new high D."
+ },
+ {
+  "id": "jingle-bells-verse",
+  "title": "Jingle Bells (verse)",
+  "origin": "James Lord Pierpont, 1857",
+  "level": 5,
+  "notesUsed": [
+   "G4",
+   "A4",
+   "B4",
+   "C5",
+   "D5",
+   "E5",
+   "F5",
+   "G5"
+  ],
+  "newNotes": [
+   "D5",
+   "E5",
+   "F5",
+   "G5"
+  ],
+  "timeSig": "4/4",
+  "pickupBeats": 0,
+  "bpm": 112,
+  "notes": "G4:q E5:q D5:q C5:q | G4:h. G4:e G4:e | G4:q E5:q D5:q C5:q | A4:w | A4:q F5:q E5:q D5:q | B4:w | G5:q G5:q F5:q D5:q | E5:w",
+  "teachingNote": "Each phrase opens with a big leap up and then steps down. F5 (top line) and G5 (above the staff) are new. G5 is above the on-screen keyboard, but the mic still hears it."
+ },
+ {
+  "id": "yankee-doodle",
+  "title": "Yankee Doodle",
+  "origin": "Traditional American, 18th c.",
+  "level": 5,
+  "notesUsed": [
+   "G4",
+   "A4",
+   "B4",
+   "C5",
+   "D5",
+   "E5",
+   "F5"
+  ],
+  "newNotes": [
+   "D5",
+   "E5",
+   "F5"
+  ],
+  "timeSig": "4/4",
+  "pickupBeats": 0,
+  "bpm": 120,
+  "notes": "C5:q C5:q D5:q E5:q | C5:q E5:q D5:q G4:q | C5:q C5:q D5:q E5:q | C5:h B4:h | C5:q C5:q D5:q E5:q | F5:q E5:q D5:q C5:q | B4:q G4:q A4:q B4:q | C5:h C5:h",
+  "teachingNote": "Played up an octave around high C so it needs no sharps. The hand stays near the top of the staff, with one quick drop to G each line."
+ },
+ {
+  "id": "happy-birthday",
+  "title": "Happy Birthday",
+  "origin": "Mildred and Patty Hill, Good Morning to All, 1893 (melody public domain)",
+  "level": 5,
+  "notesUsed": [
+   "G4",
+   "A4",
+   "B4",
+   "C5",
+   "D5",
+   "E5",
+   "F5",
+   "G5"
+  ],
+  "newNotes": [
+   "D5",
+   "E5",
+   "F5",
+   "G5"
+  ],
+  "timeSig": "3/4",
+  "pickupBeats": 1,
+  "bpm": 96,
+  "notes": "G4:e. G4:s | A4:q G4:q C5:q | B4:h G4:e. G4:s | A4:q G4:q D5:q | C5:h G4:e. G4:s | G5:q E5:q C5:q | B4:q A4:q F5:e. F5:s | E5:q C5:q D5:q | C5:h.",
+  "teachingNote": "Each line starts with a short-long pickup on G and then reaches a little higher, first to C, then to D, then a full octave up to high G. The last line comes down from high F."
+ },
+ {
+  "id": "row-row-row-your-boat",
+  "title": "Row, Row, Row Your Boat",
+  "origin": "Traditional English-language nursery rhyme and round, first published 1852 (melody 1881)",
+  "level": 2,
+  "notesUsed": [
+   "C4",
+   "D4",
+   "E4",
+   "F4",
+   "G4",
+   "C5"
+  ],
+  "newNotes": [
+   "C5"
+  ],
+  "timeSig": "6/8",
+  "pickupBeats": 0,
+  "bpm": 100,
+  "notes": "C4:q. C4:q. | C4:q D4:e E4:q. | E4:q D4:e E4:q F4:e | G4:h. | C5:e C5:e C5:e G4:e G4:e G4:e | E4:e E4:e E4:e C4:e C4:e C4:e | G4:q F4:e E4:q D4:e | C4:h.",
+  "teachingNote": "This is in 6/8, so feel two big beats per bar. Each big beat holds three eighths. The long-short (quarter, then eighth) rhythm on 'gently down the' comes back on 'life is but a'. Play the four 'merrily' bars as smooth, even groups of three, stepping down from high C."
+ },
+ {
+  "id": "frere-jacques",
+  "title": "Fr\u00e8re Jacques",
+  "origin": "Traditional French nursery song and round, 18th c.",
+  "level": 3,
+  "notesUsed": [
+   "D4",
+   "G4",
+   "A4",
+   "B4",
+   "C5",
+   "D5",
+   "E5"
+  ],
+  "newNotes": [
+   "E5"
+  ],
+  "timeSig": "4/4",
+  "pickupBeats": 0,
+  "bpm": 100,
+  "notes": "G4:q A4:q B4:q G4:q | G4:q A4:q B4:q G4:q | B4:q C5:q D5:h | B4:q C5:q D5:h | D5:e E5:e D5:e C5:e B4:q G4:q | D5:e E5:e D5:e C5:e B4:q G4:q | G4:q D4:q G4:h | G4:q D4:q G4:h",
+  "teachingNote": "Each phrase is played twice, so learn it in four two-bar pairs. Hold the half note D at the end of bars 3 and 4 for its full two beats. In bars 5 and 6 the eighth notes go up to E and come back down, so keep them light and even. The last pair drops down to low D and back to G, like a bell."
+ }
+]

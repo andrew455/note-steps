@@ -1,0 +1,11 @@
+{
+  "name": "note-steps",
+  "private": true,
+  "description": "Learn to read music on a piano: the phone listens and checks each note.",
+  "scripts": {
+    "test": "node --test tests/"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
