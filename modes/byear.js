@@ -493,6 +493,7 @@
     // Only for a recognised chord: after a tap the latest onset is a melody note, not a chord.
     const from = via === 'chord' ? S.onsets.filter((t) => t <= at && t >= at - 0.8).pop() : null;
     if (via === 'chord') {
+      S.lastChordAt = now;
       if (S.bar && S.bar.flash) { try { S.bar.flash(chord); } catch {} }
       flashFallback(chord);
       announce(`Heard ${B.CHORD_NAMES[chord]}: ${cmd.announce}`);
@@ -673,7 +674,29 @@
     }
   }
 
+  // After a chord command, playback waits until the hand has let go of the keys, plus a short pause,
+  // so the tune doesn't start under the chord. (Mic chords, with no key-up to see, wait a fixed time.)
+  const AFTER_CHORD_MS = 800;
+  function afterChord(fn) {
+    if (!S || performance.now() - (S.lastChordAt || -Infinity) > 3000) { fn(); return; }
+    const t0 = performance.now();
+    let releasedAt = null;
+    const check = () => {
+      if (!S) return;
+      const held = NS.midi && NS.midi.heldCount ? NS.midi.heldCount() : 0;
+      const now = performance.now();
+      if (held === 0 && releasedAt === null) releasedAt = now;
+      if (held > 0) releasedAt = null;
+      if ((releasedAt !== null && now - releasedAt >= AFTER_CHORD_MS && now - S.lastChordAt >= AFTER_CHORD_MS) || now - t0 > 5000) fn();
+      else later(check, 50);
+    };
+    check();
+  }
+
   function playListen() {
+    afterChord(playListenNow);
+  }
+  function playListenNow() {
     if (!S || S.step !== 'listen') return;
     S.listenUi.played = true;
     const h = play('song');
@@ -738,7 +761,7 @@
     renderLive(true);
     startTimer();
     setCommands([
-      { chord: 'Cm', label: 'Hear it again', announce: 'playing the song again', run: () => play('song') },
+      { chord: 'Cm', label: 'Hear it again', announce: 'playing the song again', run: () => afterChord(() => { if (S && S.step === 'practise') play('song'); }) },
       { chord: 'C', label: 'Start the real take', announce: 'starting the real take', run: (info) => startTake(info) },
     ]);
     updatePractiseUi();

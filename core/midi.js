@@ -117,6 +117,7 @@
     connect,
     disconnect,
     isOn: () => on,
+    heldCount: () => held.size,
     names: () => names.slice(),
   };
 
