@@ -758,28 +758,93 @@
     return weak;
   }
 
+  // Each mode looks like its own game: a name, a tagline, colours, and a chord that opens it.
+  const GAMES = {
+    practice: { name: 'Sight Reader', tag: 'Read the staff, one note at a time', c1: '#3b6cf0', c2: '#22b8f0' },
+    ear: { name: 'Echo', tag: 'Hear a phrase, copy it, then see it written', c1: '#8b4cf0', c2: '#e05ad6' },
+    perform: { name: 'Note Rush', tag: 'Hit every note in time. Beat your best score', c1: '#f0682b', c2: '#f0b429' },
+    byear: { name: 'Ear Detective', tag: 'Hear a tune, work it out, compare your take', c1: '#109f8f', c2: '#3fd08b' },
+    drill: { name: 'Flash Notes', tag: 'Quick-fire notes. How fast can you read?', c1: '#e8a10c', c2: '#f5d33b' },
+    free: { name: 'Jam Room', tag: 'Play anything and see it on the staff', c1: '#2f9e44', c2: '#94d82d' },
+    notes: { name: 'My Notes', tag: 'See which notes you know', c1: '#5c6b84', c2: '#93a3bd' },
+  };
+  // Tile chords: easy chords that aren't the current next/again/back commands.
+  const TILE_POOL = ['F', 'Am', 'Dm', 'Em', 'G', 'D', 'A', 'E', 'C', 'Bb', 'Gm', 'Fm'];
+  function tileChords(ids) {
+    const v = NS.chordset ? NS.chordset.current() : { next: 'C', again: 'Cm', back: 'G' };
+    const pool = TILE_POOL.filter((c) => ![v.next, v.again, v.back].includes(c));
+    const out = {};
+    ids.forEach((id, i) => { out[id] = pool[i % pool.length]; });
+    return out;
+  }
+  function chordKeys(id) {
+    const CS = root.ChordSet;
+    const keys = CS ? CS.midis(id) : [];
+    const W = 7;
+    const whites = [];
+    for (let m = 55; m <= 76; m++) if (![1, 3, 6, 8, 10].includes(m % 12)) whites.push(m);
+    let h = `<svg class="mt-keys" viewBox="0 0 ${whites.length * W + 1} 26" aria-hidden="true">`;
+    whites.forEach((m, i) => { h += `<rect x="${i * W + 0.5}" y="0.5" width="${W}" height="25" rx="1" style="fill:${keys.includes(m) ? 'var(--accent)' : 'var(--key-white)'};stroke:var(--line);stroke-width:1"/>`; });
+    for (let m = 56; m <= 75; m++) {
+      if (![1, 3, 6, 8, 10].includes(m % 12)) continue;
+      const below = whites.indexOf(m - 1);
+      h += `<rect x="${(below + 1) * W - 2.1 + 0.5}" y="0.5" width="4.2" height="15" rx="0.8" style="fill:${keys.includes(m) ? 'var(--accent)' : 'var(--key-black)'}"/>`;
+    }
+    return h + '</svg>';
+  }
+  let homeDet = null;
+  function disposeHomeChords() { if (homeDet) { try { homeDet.dispose(); } catch {} homeDet = null; } }
+
   function renderModes(q) {
     const grid = q('[data-modes]');
     grid.innerHTML = '';
+    grid.classList.add('games');
     const defs = NS.modes.list().filter((m) => !m.hidden);
-    defs.forEach((m, i) => {
-      const b = el('button', 'mode-tile');
+    const chords = tileChords(defs.map((m) => m.id));
+    const CS = root.ChordSet;
+    const open = (m) => { NS.audio.resume(); go(m.needsSong ? `#/songs/${enc(m.id)}` : `#/${enc(m.id)}`); };
+    defs.forEach((m) => {
+      const g = GAMES[m.id] || { name: m.title || m.id, tag: m.blurb || '', c1: '#3b6cf0', c2: '#22b8f0' };
+      const b = el('button', 'mode-tile game');
       b.type = 'button';
       b.dataset.mode = m.id;
-      if (defs.length % 2 === 1 && i === defs.length - 1) b.classList.add('wide');
-      const ic = el('span', 'mt-icon');
-      ic.innerHTML = iconFor(m);
-      const t = el('span', 'mt-title', m.title || m.id);
-      const bl = el('span', 'mt-blurb', m.blurb || '');
-      b.append(ic, t, bl);
+      b.style.setProperty('--g1', g.c1);
+      b.style.setProperty('--g2', g.c2);
+      const art = el('span', 'mt-art');
+      art.innerHTML = iconFor(m);
+      const txt = el('span', 'mt-text');
+      txt.append(el('span', 'mt-eyebrow', m.title || m.id), el('span', 'mt-title', g.name), el('span', 'mt-blurb', g.tag));
       let chipText = null;
       try { chipText = m.tileChip ? m.tileChip() : null; } catch { chipText = null; }
-      if (chipText) b.appendChild(el('span', 'mt-chip', chipText));
-      b.setAttribute('aria-label', [m.title, m.blurb, chipText].filter(Boolean).join('. '));
-      b.addEventListener('click', () => { NS.audio.resume(); go(m.needsSong ? `#/songs/${enc(m.id)}` : `#/${enc(m.id)}`); });
+      if (chipText) txt.appendChild(el('span', 'mt-chip', chipText));
+      const ch = el('span', 'mt-chord');
+      ch.innerHTML = chordKeys(chords[m.id]);
+      ch.appendChild(el('span', 'mt-chord-name', CS ? CS.name(chords[m.id]) : chords[m.id]));
+      b.append(art, txt, ch);
+      b.setAttribute('aria-label', [g.name, m.title, g.tag, chipText, `Play ${CS ? CS.name(chords[m.id]) : chords[m.id]} to open`].filter(Boolean).join('. '));
+      b.addEventListener('click', () => open(m));
       grid.appendChild(b);
     });
+    // Play a tile's chord to open it.
+    disposeHomeChords();
+    if (root.ChordDetect) {
+      const src = NS.mic && NS.mic.isOn() && NS.mic.source ? NS.mic.source() : null;
+      homeDet = root.ChordDetect.attach(src ? NS.audio.ctx() : null, src, {
+        targets: Object.values(chords),
+        muted: () => NS.audio.micMuted(performance.now()),
+        onChord: (name) => {
+          const m = defs.find((d) => chords[d.id] === name);
+          if (!m || !cur || cur.def !== HOME) return;
+          const tile = grid.querySelector(`[data-mode="${m.id}"]`);
+          if (tile) tile.classList.add('picked');
+          setTimeout(() => open(m), 250);
+        },
+      });
+      homeDet.start();
+    }
   }
+  NS.bus.on('route', ({ modeId }) => { if (modeId !== 'home') disposeHomeChords(); });
+  NS.bus.on('midi:state', () => { if (cur && cur.def === HOME) { const q = (sel) => cur.root.querySelector(sel); if (q('[data-modes]')) renderModes(q); } });
 
   function renderForYou(q, S, songs, now) {
     const list = q('[data-foryou]');

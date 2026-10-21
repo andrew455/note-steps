@@ -192,3 +192,22 @@ html.ui-locked, html.ui-locked body { overflow: hidden; }
   .ui-sheet .dialog.sheet { animation: ui-sheet-in 0.18s ease-out; }
   @keyframes ui-sheet-in { from { transform: translateY(24px); } to { transform: none; } }
 }
+
+/* Home: each mode as its own game, in a list of boxes */
+.modes-grid.games { grid-template-columns: 1fr; gap: 12px; }
+.mode-tile.game { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; align-items: center; gap: 12px;
+  padding: 12px; border-radius: 18px; text-align: left; position: relative; overflow: hidden;
+  border: 1.5px solid var(--line); background: var(--card); }
+.mode-tile.game::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 5px; background: linear-gradient(180deg, var(--g1), var(--g2)); }
+.mode-tile.game .mt-art { width: 64px; height: 64px; border-radius: 16px; display: grid; place-items: center; color: #fff;
+  background: linear-gradient(135deg, var(--g1), var(--g2)); box-shadow: 0 4px 12px color-mix(in srgb, var(--g1) 35%, transparent); }
+.mode-tile.game .mt-art svg { width: 32px; height: 32px; }
+.mode-tile.game .mt-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.mode-tile.game .mt-eyebrow { font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; color: var(--muted); }
+.mode-tile.game .mt-title { font-size: 1.2rem; }
+.mode-tile.game .mt-chord { display: flex; flex-direction: column; align-items: center; gap: 3px; width: 76px; }
+.mode-tile.game .mt-keys { width: 76px; height: auto; display: block; }
+.mode-tile.game .mt-chord-name { font-size: 0.72rem; font-weight: 800; color: var(--ink); text-align: center; line-height: 1.15; }
+.mode-tile.game.picked { border-color: var(--good); background: var(--good-soft); }
+@media (hover: hover) { .mode-tile.game:hover { border-color: var(--g1); } }
+@media (max-width: 360px) { .mode-tile.game { grid-template-columns: 52px minmax(0, 1fr) auto; } .mode-tile.game .mt-art { width: 52px; height: 52px; } }
