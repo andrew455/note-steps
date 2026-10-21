@@ -185,7 +185,13 @@
       if (fastLane(S)) out.pair = u + 1;
       return out;
     }
-    if (!scored.length) return { kind: 'run' };
+    // No song fits yet: don't loop on short tunes. Once the notes are going reasonably well, move on
+    // to the next note, which opens up new songs.
+    if (!scored.length) return gate !== 'closed' && UNITS[u] ? { kind: 'meet', unit: u } : { kind: 'run' };
+    // Only songs you've already played lots: same rule, so you aren't stuck on them either.
+    if (gate !== 'closed' && UNITS[u] && scored.every((x) => (practiceOf(S, x.song.id).plays || 0) >= 3)) {
+      return { kind: 'meet', unit: u };
+    }
     return { kind: 'song', song: scored[0].song, alts: scored.slice(1, 3).map((x) => x.song), C: scored[0].C, comfort: scored[0].comfort };
   }
 

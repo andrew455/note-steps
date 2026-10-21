@@ -160,6 +160,72 @@
       kind: 'song', tags: ['kids'], grade: 5, bpm: 90, beatsPerBar: 3, pickup: 1,
       music: 'G4:e. G4:s | A4 G4 C5 | B4:h / G4:e. G4:s | A4 G4 D5 | C5:h / G4:e. G4:s | G5 E5 C5 | B4 A4 / F5:e. F5:s | E5 C5 D5 | C5:h.',
     },
+    // ---- more songs, so every new note has something to play (originals written for Note Steps) ----
+    {
+      id: 'ping-pong', title: 'Ping Pong', origin: 'Note Steps original',
+      kind: 'song', tags: ['kids'], grade: 1, bpm: 96, beatsPerBar: 4,
+      music: 'C4 D4 C4 D4 | C4:h C4:h | / D4 D4 C4 C4 | D4:w | / C4 D4 C4 D4 | C4 C4 D4:h | / D4 C4 D4 C4 | C4:w',
+    },
+    {
+      id: 'step-and-back', title: 'Step and Back', origin: 'Note Steps original',
+      kind: 'song', tags: ['kids'], grade: 1, bpm: 90, beatsPerBar: 4,
+      music: 'C4:h D4:h | C4:w | / D4:h C4:h | D4:w | / C4 C4 D4 D4 | C4 C4 D4:h | / D4 D4 C4 D4 | C4:w',
+    },
+    {
+      id: 'three-little-steps', title: 'Three Little Steps', origin: 'Note Steps original',
+      kind: 'song', tags: ['kids'], grade: 1, bpm: 96, beatsPerBar: 4,
+      music: 'C4 D4 E4:h | E4 D4 C4:h | / E4 E4 D4 D4 | C4:w | / D4 E4 D4 C4 | E4:h D4:h | / C4 D4 E4 D4 | C4:w',
+    },
+    {
+      id: 'four-step-march', title: 'Four Step March', origin: 'Note Steps original',
+      kind: 'song', tags: ['kids'], grade: 2, bpm: 100, beatsPerBar: 4,
+      music: 'C4 D4 E4 F4 | E4 D4 C4:h | / C4 D4 E4 F4 | F4:h E4:h | / F4 E4 D4 C4 | D4 E4 F4:h | / E4 D4 E4 F4 | C4:w',
+    },
+    {
+      id: 'f-fanfare', title: 'F Fanfare', origin: 'Note Steps original',
+      kind: 'song', tags: ['kids'], grade: 2, bpm: 104, beatsPerBar: 4,
+      music: 'F4 F4 E4 F4 | D4:h C4:h | / E4 F4 E4 D4 | E4:w | / F4 E4 D4 E4 | F4 F4 F4:h | / E4 D4 E4 D4 | C4:w',
+    },
+    {
+      id: 'little-ladder', title: 'The Little Ladder', origin: 'Note Steps original',
+      kind: 'song', tags: ['kids'], grade: 2, bpm: 92, beatsPerBar: 4,
+      music: 'C4 E4 D4 F4 | E4:h C4:h | / D4 F4 E4 D4 | C4:w | / F4:h E4:h | D4:h C4:h | / D4 E4 F4 D4 | C4:w',
+    },
+    {
+      id: 'when-the-saints', title: 'When the Saints Go Marching In (first line)', origin: 'Traditional American spiritual',
+      kind: 'song', tags: ['folk'], grade: 2, bpm: 110, beatsPerBar: 4, pickup: 3,
+      music: 'C4 E4 F4 | / G4:w | / R:q C4 E4 F4 | G4:w | / R:q C4 E4 F4 | G4:h E4:h | C4:h E4:h | D4:w',
+    },
+    {
+      id: 'up-to-b', title: 'Up to B', origin: 'Note Steps original',
+      kind: 'song', tags: ['kids'], grade: 4, bpm: 100, beatsPerBar: 4,
+      music: 'G4 A4 B4 A4 | G4:h E4:h | / G4 A4 B4 B4 | A4:w | / B4 A4 G4 F4 | E4 F4 G4:h | / A4 B4 A4 F4 | G4:w',
+    },
+    {
+      id: 'evening-bells', title: 'Evening Bells', origin: 'Note Steps original',
+      kind: 'song', tags: ['kids'], grade: 4, bpm: 84, beatsPerBar: 4,
+      music: 'E4 G4 B4:h | A4 G4 E4:h | / F4 A4 B4 A4 | G4:w | / B4 A4 G4 E4 | F4 E4 D4:h | / E4 G4 F4 D4 | C4:w',
+    },
+    {
+      id: 'up-the-hill', title: 'Up the Hill', origin: 'Note Steps original',
+      kind: 'song', tags: ['kids'], grade: 5, bpm: 96, beatsPerBar: 4,
+      music: 'C5 D5 C5 B4 | A4:h G4:h | / A4 B4 C5 D5 | D5:w | / D5 C5 B4 A4 | G4 A4 B4:h | / C5 D5 B4 G4 | C5:w',
+    },
+    {
+      id: 'skylark', title: 'Skylark', origin: 'Note Steps original',
+      kind: 'song', tags: ['kids'], grade: 5, bpm: 100, beatsPerBar: 4,
+      music: 'C5 E5 D5 C5 | B4 C5 D5:h | / E5 D5 C5 E5 | D5:w | / E5 E5 D5 C5 | A4 B4 C5:h | / D5 E5 D5 B4 | C5:w',
+    },
+    {
+      id: 'top-line-waltz', title: 'Top Line Waltz', origin: 'Note Steps original',
+      kind: 'song', tags: ['kids'], grade: 5, bpm: 100, beatsPerBar: 3,
+      music: 'F5 E5 D5 | C5:h. | / D5 E5 F5 | E5:h. | / F5 D5 B4 | C5 D5 E5 | / F5 E5 D5 | C5:h.',
+    },
+    {
+      id: 'sky-high', title: 'Sky High', origin: 'Note Steps original',
+      kind: 'song', tags: ['kids'], grade: 5, bpm: 96, beatsPerBar: 4,
+      music: 'C5 E5 G5:h | F5 E5 D5:h | / E5 F5 G5 E5 | F5:w | / G5 F5 E5 D5 | C5 D5 E5:h | / G5 E5 D5 B4 | C5:w',
+    },
   ];
 
   // ---------- parsing ----------

@@ -30,6 +30,20 @@ const V1 = {
 
 // §3.8.1: the 23 entries, with their exact titles and origins.
 const TABLE = {
+  'ping-pong': ['Ping Pong', 'Note Steps original'],
+  'step-and-back': ['Step and Back', 'Note Steps original'],
+  'three-little-steps': ['Three Little Steps', 'Note Steps original'],
+  'four-step-march': ['Four Step March', 'Note Steps original'],
+  'f-fanfare': ['F Fanfare', 'Note Steps original'],
+  'little-ladder': ['The Little Ladder', 'Note Steps original'],
+  'when-the-saints': ['When the Saints Go Marching In (first line)', 'Traditional American spiritual'],
+  'up-to-b': ['Up to B', 'Note Steps original'],
+  'evening-bells': ['Evening Bells', 'Note Steps original'],
+  'up-the-hill': ['Up the Hill', 'Note Steps original'],
+  'skylark': ['Skylark', 'Note Steps original'],
+  'top-line-waltz': ['Top Line Waltz', 'Note Steps original'],
+  'sky-high': ['Sky High', 'Note Steps original'],
+
   'hot-cross-buns': ['Hot Cross Buns', 'Traditional English street cry'],
   'au-clair-de-la-lune': ['Au Clair de la Lune (first phrase)', 'Traditional French, 18th century'],
   mary: ['Mary Had a Little Lamb', 'Traditional American, 19th century'],
@@ -78,11 +92,11 @@ function v1Parse(str) {
 
 // ---------- ids, legacy and content ----------
 
-test('ids are unique and the library is the 23 entries of §3.8.1', () => {
+test('ids are unique and the library is the 23 entries of §3.8.1 plus the added songs', () => {
   const ids = all.map((s) => s.id);
   assert.equal(new Set(ids).size, ids.length);
   assert.deepEqual([...ids].sort(), Object.keys(TABLE).sort());
-  assert.equal(Songs.RAW.length, 23);
+  assert.equal(Songs.RAW.length, 36);
 });
 
 test('every legacy id is present and its notes match the v1 string exactly', () => {
@@ -331,14 +345,17 @@ test('stages 1–3 each have at least 4 pieces to read (songs plus Little steps)
   const withEtudes = Songs.byStage({ etudes: true });
   for (const k of [1, 2, 3]) assert.ok(withEtudes[k].length >= 4, `stage ${k}`);
   assert.ok(lib[2].length >= 4 && lib[3].length >= 4);
-  // Stage 1 (C D E) holds the only two verified tunes that use nothing but C, D and E.
-  assert.deepEqual(lib[1].map((s) => s.id).sort(), ['au-clair-de-la-lune', 'hot-cross-buns']);
+  // Stage 1 (C D E): the two verified tunes plus the originals written for the first notes.
+  assert.deepEqual(lib[1].map((s) => s.id).sort(), ['au-clair-de-la-lune', 'hot-cross-buns', 'ping-pong', 'step-and-back', 'three-little-steps']);
   assert.deepEqual(lib.extra.map((s) => s.id), ['frere']);
   const counted = [1, 2, 3, 4].reduce((n, k) => n + lib[k].length, lib.extra.length);
   assert.equal(counted, all.length);
   // each unit's group ends with its 5 etudes
   const s1 = withEtudes[1].map((s) => s.id);
-  assert.deepEqual(s1.slice(0, 5), ['etude-u0-0', 'etude-u0-1', 'etude-u0-2', 'etude-u0-3', 'etude-u0-4']);
+  // unit 0's group (its songs, then its 5 etudes) comes before unit 1's
+  const u0 = ['etude-u0-0', 'etude-u0-1', 'etude-u0-2', 'etude-u0-3', 'etude-u0-4'];
+  u0.forEach((id) => assert.ok(s1.includes(id), id));
+  assert.ok(s1.indexOf('etude-u0-4') < s1.indexOf('hot-cross-buns'));
   assert.deepEqual(s1.slice(-5), ['etude-u1-0', 'etude-u1-1', 'etude-u1-2', 'etude-u1-3', 'etude-u1-4']);
 });
 
@@ -386,7 +403,7 @@ test('in the browser it sets window.NoteSongs and NS.songs', () => {
   const win = { NS: { notation: Notation, curriculum: Curriculum } };
   vm.runInNewContext(fs.readFileSync(SONGS_PATH, 'utf8'), { window: win });
   assert.ok(win.NoteSongs && Array.isArray(win.NoteSongs.songs));
-  assert.equal(win.NoteSongs.songs.length, 23);
+  assert.equal(win.NoteSongs.songs.length, Songs.RAW.length);
   assert.equal(typeof win.NoteSongs.parseNotes, 'function');
   assert.equal(win.NoteSongs.levels.length, 5);
   assert.equal(win.NS.songs.all(), win.NoteSongs.songs);
