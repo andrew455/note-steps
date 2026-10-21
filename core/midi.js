@@ -124,7 +124,9 @@
     } catch { return 'unknown'; }
   }
 
-  async function connect() {
+  // fresh: forget the old connection and ask Chrome again (after unplugging and replugging).
+  async function connect({ fresh = false } = {}) {
+    if (fresh && access) { try { access.inputs.forEach((i) => { i.onmidimessage = null; }); access.onstatechange = null; } catch {} access = null; }
     if (!supported()) {
       const r = { ok: false, reason: 'unsupported' };
       NS.bus.emit('midi:state', Object.assign({ on: false }, r));

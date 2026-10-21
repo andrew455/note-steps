@@ -45,7 +45,7 @@
     ov.addEventListener('click', (e) => { if (e.target === ov) close(); });
     shut.addEventListener('click', close);
     disc.addEventListener('click', () => { NS.midi.disconnect(); render(); });
-    again.addEventListener('click', async () => { NS.audio.resume && NS.audio.resume(); await NS.midi.connect(); render(); });
+    again.addEventListener('click', async () => { NS.audio.resume && NS.audio.resume(); await NS.midi.connect({ fresh: true }); render(); });
     document.body.appendChild(ov);
 
     const row = (li, ok, label, text) => {
