@@ -47,3 +47,13 @@
 .unlock { font-weight: 700; color: var(--good); }
 /* The speed picker clips overflow, so draw its focus ring inside each option. */
 .speed button:focus-visible { outline-offset: -4px; }
+
+/* Key press feedback: a white flash on the play line, and a white tick on the track where you pressed */
+.hitflash { position: absolute; top: 18px; bottom: 18px; left: 114px; width: 46px; transform: translateX(-50%);
+  border-radius: 12px; pointer-events: none; opacity: 0;
+  background: radial-gradient(closest-side, rgba(255,255,255,0.95), rgba(255,255,255,0.35) 60%, rgba(255,255,255,0)); }
+.hitflash.go { animation: hitflash 220ms ease-out; }
+@keyframes hitflash { 0% { opacity: 1; } 100% { opacity: 0; } }
+#track .pressmark { animation: pressfade 1.6s ease-in forwards; }
+@keyframes pressfade { 0%, 60% { opacity: 1; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .hitflash.go { animation-duration: 1ms; } #track .pressmark { animation: none; } }

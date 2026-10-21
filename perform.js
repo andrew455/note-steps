@@ -396,7 +396,8 @@
       perf.combo++;
       perf.maxCombo = Math.max(perf.maxCombo, perf.combo);
       perf.score += (kind === 'perfect' ? 100 : 50) * multiplier(perf.combo);
-      const when = kind === 'good' ? (dt < 0 ? 'A little early.' : 'A little late.') : 'Right on the beat.';
+      const ms = Math.round(Math.abs(dt) * 1000);
+      const when = ms < 15 ? 'Right on the beat.' : `${ms} ms ${dt < 0 ? 'early' : 'late'}.`;
       setJudge(kind, kind === 'perfect' ? 'Perfect!' : 'Good', `${n.letter}. ${when}`);
     }
     $('combo').textContent = perf.combo >= 2 ? `Combo ${perf.combo} · ×${multiplier(perf.combo)}` : '';
@@ -406,6 +407,27 @@
     markNext();
   }
 
+  // Every key press: a quick white flash on the play line, and a white tick left on the track at the
+  // exact moment you pressed, which scrolls on with the notes, so you can see early or late at a glance.
+  function pressFlash(s) {
+    const card = $('track') && $('track').parentElement;
+    if (card) {
+      let f = card.querySelector('.hitflash');
+      if (!f) { f = document.createElement('div'); f.className = 'hitflash'; card.appendChild(f); }
+      f.classList.remove('go');
+      void f.offsetWidth;
+      f.classList.add('go');
+    }
+    if (!perf || !perf.trackEl) return;
+    const x = (s / perf.spb) * perf.ppb;
+    const g = svgEl('g', { class: 'pressmark' }, perf.trackEl);
+    const under = svgEl('line', { x1: x, x2: x, y1: 30, y2: 132, 'stroke-width': 5, 'stroke-linecap': 'round' }, g);
+    under.style.stroke = 'rgba(0,0,0,0.35)';
+    const line = svgEl('line', { x1: x, x2: x, y1: 30, y2: 132, 'stroke-width': 2.5, 'stroke-linecap': 'round' }, g);
+    line.style.stroke = '#fff';
+    setTimeout(() => g.remove(), 1600);
+  }
+
   // A note from the mic (at = audio-clock onset time) or a tap (at = heard time).
   function heard(midi, at, source) {
     NS.showHeard(NS.foldToKeyboard(midi));
@@ -413,6 +435,7 @@
     if (perf.state === 'cal') { if (source === 'mic') perf.cal.onsets.push(at); return; }
     if (perf.state !== 'countin' && perf.state !== 'playing') return;
     const s = songSecFor(at, source);
+    pressFlash(s);
     const pc = (m) => ((m % 12) + 12) % 12;
     // First come, first served: the earliest unplayed note whose window contains this moment.
     // An exact match wins; the same letter in another octave counts when there's no exact match.
