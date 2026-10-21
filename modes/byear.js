@@ -467,7 +467,7 @@
     if (!CD || typeof CD.attach !== 'function' || !src || !NS.mic.isOn()) return;
     if (root.ChordBar && root.ChordBar.detects) return;
     try {
-      S.det = CD.attach(NS.audio.ctx(), src, { targets: CHORD_ORDER.slice(), onChord: onChord });
+      S.det = CD.attach(NS.audio.ctx(), src, { targets: CHORD_ORDER.slice(), onChord: onChord, muted: () => Boolean(S && S.playing) || NS.audio.micMuted() });
       S.det.start();
     } catch (err) {
       console.error('[byear] chord detector failed', err);

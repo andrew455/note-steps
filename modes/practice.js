@@ -305,6 +305,7 @@
       </div>
       <button class="btn" data-ref="cold" hidden>Read a new tune with these notes</button>
       <div class="pr-chords" data-ref="chords"></div>
+      <button class="btn" type="button" data-ref="chordMic" hidden>🎤 Start listening for chords</button>
     </div>
   </div>`;
 
@@ -856,10 +857,17 @@
     if (!c) return;
     if (c.det) { try { c.det.dispose(); } catch {} c.det = null; }
     c.card.setListening(NS.mic.isOn());
+    // The popup covers the main mic button, so offer one inside it.
+    const micBtn = ses.ui.chordMic;
+    if (micBtn) {
+      micBtn.hidden = NS.mic.isOn();
+      micBtn.onclick = () => { NS.audio.resume && NS.audio.resume(); NS.mic.start(); };
+    }
     const src = NS.mic.isOn() && NS.mic.source ? NS.mic.source() : null;
     if (!src || !root.ChordDetect) return;
     c.det = root.ChordDetect.attach(NS.audio.ctx(), src, {
       targets: ['C', 'Cm'],
+      muted: () => NS.audio.micMuted(performance.now()),
       onChord: (name) => {
         const now = performance.now();
         if (!ses || ses.chord !== c || !c.actions[name] || NS.audio.micMuted(now) || now < c.quietUntil) return;

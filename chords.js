@@ -59,7 +59,7 @@
     for (const p of [2, 3, 5]) while (m > 1 && m % p === 0) m /= p;
     OFF_TUNE[h] = h > 1 && m > 1;
   }
-  const CHORDS = { C: [0, 4, 7], Cm: [0, 3, 7] };
+  const CHORDS = { C: [0, 4, 7], Cm: [0, 3, 7], G: [7, 11, 2] };
   const NON_CHORD = [1, 2, 5, 6, 8, 9, 10, 11];
 
   function withDefaults(opts) {
@@ -322,30 +322,37 @@
   }
 
   // ---------------------------------------------------------------- classify
+  // opts.targets: which chords may be reported (default C and Cm; G major is also known).
   function classify(chroma, opts) {
     const o = withDefaults(opts);
+    const targets = (opts && opts.targets) || ['C', 'Cm'];
     let max = 0;
     for (let i = 0; i < 12; i++) if (chroma[i] > max) max = chroma[i];
-    const none = { name: null, scores: { C: 0, Cm: 0 }, confidence: 0 };
-    if (!(max > 0)) return none;
+    const scores = {};
+    for (const id of targets) scores[id] = 0;
+    if (!(max > 0)) return { name: null, scores, confidence: 0 };
     const c = new Float64Array(12);
     for (let i = 0; i < 12; i++) c[i] = chroma[i] / max;
-    let other = 0;
-    for (const i of NON_CHORD) if (c[i] > other) other = c[i];
 
-    const scores = {};
     let name = null;
     let best = 0;
-    for (const id of ['C', 'Cm']) {
+    for (const id of targets) {
+      if (!CHORDS[id]) continue;
       const [r, third, fifth] = CHORDS[id];
-      const wrong = third === 4 ? 3 : 4;
+      // The other third (major vs minor) is judged on its own; every other pitch class is "other".
+      const wrong = (third - r + 12) % 12 === 4 ? (third + 11) % 12 : (third + 1) % 12;
+      let other = 0;
+      for (let i = 0; i < 12; i++) {
+        if (i === r || i === third || i === fifth || i === wrong) continue;
+        if (c[i] > other) other = c[i];
+      }
       const weakest = Math.min(c[r], c[third], c[fifth]);
       const ok = weakest >= o.minTone &&
         c[wrong] <= o.thirdRatio * c[third] &&
         other <= o.maxOther && other <= o.otherVsTone * weakest;
-      const s = Math.max(0, Math.min(1, weakest - c[wrong] - other));
-      scores[id] = s;
-      if (ok && s > best) { best = s; name = id; }
+      const sc = Math.max(0, Math.min(1, weakest - c[wrong] - other));
+      scores[id] = sc;
+      if (ok && sc > best) { best = sc; name = id; }
     }
     return { name, scores, confidence: name ? best : 0 };
   }
@@ -413,7 +420,7 @@
       }
       if (flags && flags.clipped) { cand = null; misses = 0; return null; }
 
-      const res = classify(chromaFromSpectrum(dbData, sampleRate, fftSize, so), so);
+      const res = classify(chromaFromSpectrum(dbData, sampleRate, fftSize, so), Object.assign({}, so, { targets: o.targets }));
       if (res.name && res.name === cand) {
         misses = 0;
         if (nowMs - candSince >= o.holdMs) {
@@ -493,6 +500,7 @@
       an.getFloatFrequencyData(freq);
       an.getFloatTimeDomainData(td);
       const t = now();
+      if (typeof o.muted === 'function' && o.muted()) { det.reset(); return; }
       // An overloaded input (flat-topped waveform) is not classified while it is in the analysis
       // window, nor for a few frames after while the analyser's smoothing forgets it.
       if (isClipped(td)) clipUntil = t + 150;
