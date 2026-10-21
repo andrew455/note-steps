@@ -34,7 +34,7 @@
   function excluded(scr) {
     if (!scr) return true;
     const main = [...document.querySelectorAll('main.wrap')].find((m) => !m.hidden);
-    if (main && main.dataset.mode === 'free') return true;
+    if (main && (main.dataset.mode === 'free' || main.dataset.mode === 'home')) return true; // Home has a chord on every box
     if (document.querySelector('.be-chordbar') && visible(document.querySelector('.be-chordbar'))) return true;
     if ([...document.querySelectorAll('.cc-card')].some(visible)) return true;
     if ([...document.querySelectorAll('.pf-overlay')].some(visible)) return true;

@@ -211,3 +211,21 @@ html.ui-locked, html.ui-locked body { overflow: hidden; }
 .mode-tile.game.picked { border-color: var(--good); background: var(--good-soft); }
 @media (hover: hover) { .mode-tile.game:hover { border-color: var(--g1); } }
 @media (max-width: 360px) { .mode-tile.game { grid-template-columns: 52px minmax(0, 1fr) auto; } .mode-tile.game .mt-art { width: 52px; height: 52px; } }
+
+/* Home: Up next and the quick drill as game-style boxes with a chord */
+.card.gl { display: grid !important; grid-template-columns: 64px minmax(0, 1fr) auto; align-items: center; column-gap: 12px; row-gap: 2px;
+  padding: 12px; border-radius: 18px; position: relative; overflow: hidden; text-align: left; cursor: pointer; }
+.card.gl::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 5px; background: linear-gradient(180deg, var(--g1), var(--g2)); }
+.card.gl > :not(.gl-art):not(.gl-chord) { grid-column: 2; min-width: 0; }
+.card.gl > .gl-art { grid-column: 1; grid-row: 1 / span 6; width: 64px; height: 64px; border-radius: 16px; display: grid; place-items: center; color: #fff;
+  background: linear-gradient(135deg, var(--g1), var(--g2)); }
+.card.gl > .gl-chord { grid-column: 3; grid-row: 1 / span 6; display: flex; flex-direction: column; align-items: center; gap: 3px; width: 76px; }
+.card.gl .mt-keys { width: 76px; height: auto; display: block; }
+.card.gl h2 { font-size: 1.2rem; margin: 0; }
+.card.gl .row { display: none; }
+.card.gl.picked { border-color: var(--good); background: var(--good-soft); }
+.card.gl { background: var(--card) !important; border: 1.5px solid var(--line) !important; color: var(--ink); }
+.card.gl .dc-title { font-family: var(--font-display); font-weight: 800; font-size: 1.2rem; text-decoration: none; line-height: 1.2; }
+.card.gl .dc-sub, .card.gl [data-up-sub] { font-size: 0.85rem; color: var(--muted); }
+.card.gl .mt-chord-name { font-size: 0.72rem; font-weight: 800; color: var(--ink); text-align: center; line-height: 1.15; }
+.card.gl.picked { border-color: var(--good) !important; background: var(--good-soft) !important; }

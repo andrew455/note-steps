@@ -551,7 +551,7 @@
   // HOME (§1.3)
   // ======================================================================
   const HOME_HTML = `
-  <section class="hero">
+  <section class="hero" hidden>
     <svg class="hero-staff" viewBox="0 0 360 90" aria-hidden="true">
       <g stroke="currentColor" stroke-width="1.2" opacity="0.55">
         <line x1="0" x2="360" y1="20" y2="20"/><line x1="0" x2="360" y1="32" y2="32"/><line x1="0" x2="360" y1="44" y2="44"/><line x1="0" x2="360" y1="56" y2="56"/><line x1="0" x2="360" y1="68" y2="68"/>
@@ -594,8 +594,6 @@
     <span class="muted dc-sub" data-drill-sub></span>
   </button>
 
-  <div data-micbar></div>
-
   <section aria-labelledby="modesH">
     <h2 id="modesH" class="sr-only">Ways to play</h2>
     <div class="modes-grid" data-modes></div>
@@ -609,13 +607,14 @@
     <ul class="song-rows" data-foryou></ul>
   </section>
 
+  <div data-micbar></div>
+
   <button class="settings-row" type="button" data-settings>
     <span><strong>Settings</strong><span class="muted" data-settings-sub></span></span>
     <span class="chev" aria-hidden="true">›</span>
   </button>
 
   <p class="tip"><strong>Finding middle C:</strong> look for a group of two black keys near the middle of your keyboard. The white key just to the left of them is C. On the staff, middle C sits on its own short line just below the five lines.</p>
-  <p class="tip"><strong>Play one note at a time.</strong> Let each note sound on its own before you play the next one, and keep the phone close to the piano so it can hear you.</p>
 
   <section class="qr" data-qr-box hidden>
     <div class="qr-code" data-qr-code></div>
@@ -825,19 +824,50 @@
       b.addEventListener('click', () => open(m));
       grid.appendChild(b);
     });
+    // Up next and the quick drill look like the game boxes and get chords too.
+    const v0 = NS.chordset ? NS.chordset.current() : { next: 'C' };
+    const extra = TILE_POOL.filter((c) => ![v0.next, v0.again, v0.back, ...Object.values(chords)].includes(c));
+    const actions = {};
+    defs.forEach((m) => { actions[chords[m.id]] = { el: grid.querySelector(`[data-mode="${m.id}"]`), run: () => open(m) }; });
+    const decorate = (card, chord, run, icon, c1, c2) => {
+      if (!card || card.hidden) return;
+      card.classList.add('gl');
+      card.style.setProperty('--g1', c1);
+      card.style.setProperty('--g2', c2);
+      card.querySelectorAll(':scope > .gl-art, :scope > .gl-chord').forEach((x) => x.remove());
+      const art = el('span', 'gl-art');
+      art.innerHTML = icon;
+      const ch = el('span', 'gl-chord');
+      ch.innerHTML = chordKeys(chord);
+      ch.appendChild(el('span', 'mt-chord-name', CS ? CS.name(chord) : chord));
+      card.prepend(art);
+      card.appendChild(ch);
+      actions[chord] = { el: card, run };
+    };
+    const up = q('[data-upnext]');
+    const upStart = q('[data-up-start]');
+    if (up && upStart) {
+      decorate(up, v0.next, () => upStart.click(), '<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>', '#d6336c', '#f76707');
+      if (!up.dataset.glClick) {
+        up.dataset.glClick = '1';
+        up.addEventListener('click', (e) => { if (!e.target.closest('button, a')) upStart.click(); });
+      }
+    }
+    const drill = q('[data-drill]');
+    if (drill && extra.length) decorate(drill, extra[0], () => drill.click(), iconFor({ id: 'drill' }), '#e8a10c', '#f5d33b');
+
     // Play a tile's chord to open it.
     disposeHomeChords();
     if (root.ChordDetect) {
       const src = NS.mic && NS.mic.isOn() && NS.mic.source ? NS.mic.source() : null;
       homeDet = root.ChordDetect.attach(src ? NS.audio.ctx() : null, src, {
-        targets: Object.values(chords),
+        targets: Object.keys(actions),
         muted: () => NS.audio.micMuted(performance.now()),
         onChord: (name) => {
-          const m = defs.find((d) => chords[d.id] === name);
-          if (!m || !cur || cur.def !== HOME) return;
-          const tile = grid.querySelector(`[data-mode="${m.id}"]`);
-          if (tile) tile.classList.add('picked');
-          setTimeout(() => open(m), 250);
+          const a = actions[name];
+          if (!a || !cur || cur.def !== HOME) return;
+          if (a.el) a.el.classList.add('picked');
+          setTimeout(a.run, 250);
         },
       });
       homeDet.start();
