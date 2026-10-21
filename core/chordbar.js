@@ -37,6 +37,7 @@
     if (main && main.dataset.mode === 'free') return true;
     if (document.querySelector('.be-chordbar') && visible(document.querySelector('.be-chordbar'))) return true;
     if ([...document.querySelectorAll('.cc-card')].some(visible)) return true;
+    if ([...document.querySelectorAll('.pf-overlay')].some(visible)) return true;
     return false;
   }
 
