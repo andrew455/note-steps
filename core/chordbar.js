@@ -25,7 +25,14 @@
 
   // getClientRects also sees position:fixed elements (offsetParent is null for those).
   const visible = (e) => e && !e.disabled && !e.closest('[hidden]') && e.getClientRects().length > 0;
-  const clean = (t) => String(t || '').replace(/[▶←×🎤🎹]/g, '').replace(/\s+/g, ' ').trim();
+  const clean = (t) => String(t || '').replace(/[▶←×🎤🎹■]/g, '').replace(/\s+/g, ' ').trim();
+  // A short label for a chip: a song row's title, or the button's first line, at most ~30 characters.
+  function labelOf(b) {
+    const strong = (b.classList.contains('song-row') || b.classList.contains('be-row')) && b.querySelector('strong');
+    let t = clean(strong ? strong.textContent : (b.innerText || b.textContent).split('\n')[0]);
+    if (t.length > 30) t = t.slice(0, 28).trim() + '…';
+    return t;
+  }
 
   function screenEl() {
     const overlays = [...document.querySelectorAll('.overlay, [role="dialog"]')].filter(visible);
@@ -49,11 +56,15 @@
     if (!excluded(scr)) {
       const buttons = [...scr.querySelectorAll('button')].filter(visible);
       // "Go" is the screen's start/next action; listen/replay buttons belong to "again".
-      const GO_RE = /^\W*(start|next|begin|continue|go|read|play$|perform|let's|ok|done|finish)/i;
-      const cands = buttons.filter((b) => !b.matches('[data-mic-btn], [data-midi-btn], .back') && !AGAIN_RE.test(clean(b.textContent)));
-      const primary = cands.find((b) => b.classList.contains('primary') && GO_RE.test(clean(b.textContent)))
-        || cands.find((b) => b.classList.contains('primary'))
-        || cands.find((b) => GO_RE.test(clean(b.textContent)));
+      const GO_RE = /^\W*(start|next|begin|continue|go$|go on|read|play$|perform|let's|ok|done|finish)/i;
+      const short = (b) => clean(b.textContent).length <= 32;
+      const cands = buttons.filter((b) => !b.matches('[data-mic-btn], [data-midi-btn], .back, .homebtn, .song-row, .be-row') && !AGAIN_RE.test(clean(b.textContent)));
+      // On a song list, "go" opens the first song you can play.
+      const firstSong = [...scr.querySelectorAll('.song-row-wrap:not(.locked) .song-row, .be-row')].find(visible);
+      const primary = cands.find((b) => b.classList.contains('primary') && short(b) && GO_RE.test(clean(b.textContent)))
+        || cands.find((b) => b.classList.contains('primary') && short(b))
+        || cands.find((b) => short(b) && GO_RE.test(clean(b.textContent)))
+        || firstSong;
       const again = buttons.find((b) => b !== primary && AGAIN_RE.test(clean(b.textContent)));
       let back = buttons.find((b) => b.classList.contains('back'));
       if (!back && scr.matches('.overlay, [role="dialog"]')) {
@@ -63,8 +74,8 @@
         if (list) back = list;
         void main;
       }
-      if (primary) next.push({ role: 'next', chord: v.next, label: clean(primary.textContent) || 'Go', button: primary });
-      if (again) next.push({ role: 'again', chord: v.again, label: clean(again.textContent), button: again });
+      if (primary) next.push({ role: 'next', chord: v.next, label: labelOf(primary) || 'Go', button: primary });
+      if (again) next.push({ role: 'again', chord: v.again, label: labelOf(again), button: again });
       if (back) next.push({ role: 'back', chord: v.back, label: clean(back.getAttribute('aria-label') || back.textContent) || 'Back', button: back });
     }
     const sig = next.map((c) => c.chord + c.label).join('|');
