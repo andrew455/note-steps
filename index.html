@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=Noto+Music&display=swap">
+<link rel="stylesheet" href="perform.css">
 <style>
 /* Layout: one column, staff card on top, feedback in the middle, on-screen keyboard at the bottom. */
 :root {
@@ -28,6 +29,9 @@
   --key-heard: #cddbff;
   --key-hint: #c9efdb;
   --key-label: #5d6679;
+  --gold: #b97a06;
+  --on-accent: #ffffff;
+  --on-gold: #1b1300;
   --font-display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
   --font-body: "Atkinson Hyperlegible", "Helvetica Neue", system-ui, sans-serif;
   --font-music: "Noto Music", "Bravura", "Apple Symbols", serif;
@@ -48,6 +52,7 @@
     --bad-soft: #43242a;
     --key-white: #e9ecf2;
     --key-black: #0b0d12;
+    --gold: #f2b84b;
     color-scheme: dark;
   }
 }
@@ -93,7 +98,7 @@ button:focus-visible, .lesson:focus-visible { outline: 3px solid var(--accent); 
   min-height: 44px; padding: 10px 16px; border-radius: 12px;
   font-weight: 700; background: var(--card); border: 1.5px solid var(--line);
 }
-.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 .btn.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
 .btn:disabled { opacity: 0.5; cursor: default; }
 
@@ -101,12 +106,21 @@ button:focus-visible, .lesson:focus-visible { outline: 3px solid var(--accent); 
 .hero { display: flex; flex-direction: column; gap: 8px; }
 .hero-staff { width: 100%; max-width: 360px; height: auto; color: var(--ink); }
 .level-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.levels { display: flex; flex-direction: column; gap: 26px; }
+.level { display: flex; flex-direction: column; gap: 12px; }
 .lessons { display: flex; flex-direction: column; gap: 10px; list-style: none; padding: 0; margin: 0; }
 .lesson {
   width: 100%; text-align: left;
-  display: grid; grid-template-columns: 40px 1fr auto; align-items: center; gap: 14px;
+  display: grid; grid-template-columns: 40px 1fr; align-items: center; column-gap: 14px; row-gap: 10px;
   padding: 14px 16px; border-radius: 14px; background: var(--card); border: 1.5px solid var(--line);
 }
+.lesson .actions { grid-column: 2; display: flex; gap: 8px; flex-wrap: wrap; }
+.lesson.locked { background: transparent; border-style: dashed; }
+.lesson.locked .num { background: var(--line); color: var(--muted); }
+.lesson.locked strong { color: var(--muted); }
+.lesson .mode-line { display: block; font-size: 0.9rem; color: var(--muted); }
+.stars-sm { color: var(--gold); letter-spacing: 0.05em; }
+.btn.small { min-height: 40px; padding: 8px 16px; border-radius: 10px; }
 .lesson .num {
   width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
   font-family: var(--font-display); font-weight: 800; background: var(--accent-soft); color: var(--accent);
@@ -114,8 +128,7 @@ button:focus-visible, .lesson:focus-visible { outline: 3px solid var(--accent); 
 .lesson.done .num { background: var(--good-soft); color: var(--good); }
 .lesson .meta { min-width: 0; }
 .lesson .meta strong { display: block; font-size: 1.05rem; }
-.lesson .meta span { font-size: 0.9rem; color: var(--muted); }
-.lesson .go { color: var(--muted); font-size: 1.4rem; }
+.lesson .meta .sub { display: block; font-size: 0.9rem; color: var(--muted); }
 .tip { background: var(--card); border-radius: 14px; padding: 14px 16px; border: 1.5px dashed var(--line); font-size: 0.95rem; }
 .qr { display: flex; gap: 16px; align-items: center; background: var(--card); border-radius: 14px; padding: 14px 16px; border: 1.5px solid var(--line); }
 .qr-code { background: #fff; padding: 8px; border-radius: 8px; flex: none; }
@@ -166,17 +179,17 @@ button:focus-visible, .lesson:focus-visible { outline: 3px solid var(--accent); 
 .notice { font-size: 0.9rem; color: var(--bad); }
 
 /* Done overlay */
-.overlay { position: fixed; inset: 0; background: rgba(10, 14, 22, 0.55); display: grid; place-items: center; padding: 16px; z-index: 10; }
-.dialog { background: var(--card); border-radius: 20px; padding: 24px; max-width: 420px; width: 100%; display: flex; flex-direction: column; gap: 14px; text-align: center; }
+.overlay { position: fixed; inset: 0; background: rgba(10, 14, 22, 0.55); display: grid; place-items: safe center; padding: 16px; z-index: 10; overflow-y: auto; }
+.dialog { background: var(--card); border-radius: 20px; padding: 24px; max-width: 420px; width: 100%; margin: auto; display: flex; flex-direction: column; gap: 14px; text-align: center; }
 .dialog .row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-.stars { font-size: 2.2rem; letter-spacing: 0.1em; color: #e0a526; }
+.stars { font-size: 2.2rem; letter-spacing: 0.1em; color: var(--gold); }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
 <body>
 
-<main class="wrap" id="home">
+<main class="wrap screen" id="home">
   <section class="hero">
     <svg class="hero-staff" viewBox="0 0 360 90" aria-hidden="true">
       <g stroke="currentColor" stroke-width="1.2" opacity="0.55">
@@ -187,16 +200,10 @@ button:focus-visible, .lesson:focus-visible { outline: 3px solid var(--accent); 
     </svg>
     <span class="eyebrow">Learn to read music</span>
     <h1>Note Steps</h1>
-    <p class="muted">Read the note on the staff, then play it on your piano or keyboard. Your phone listens and tells you if you got it right. There's no timer, so take as long as you need.</p>
+    <p class="muted">Read the note on the staff, then play it on your piano or keyboard. Your phone listens and tells you if you got it right. <strong>Practice</strong> waits for you on every note. <strong>Perform</strong> scrolls the song past a line in time, Guitar Hero style, and scores you. Do well to unlock the next song.</p>
   </section>
 
-  <section style="display:flex;flex-direction:column;gap:12px">
-    <div class="level-head">
-      <h2>Level 1 · C major, right hand</h2>
-      <span class="muted" id="levelCount"></span>
-    </div>
-    <ul class="lessons" id="lessons"></ul>
-  </section>
+  <div class="levels" id="levels"></div>
 
   <p class="tip"><strong>Finding middle C:</strong> look for a group of two black keys near the middle of your keyboard. The white key just to the left of them is C. On the staff, middle C sits on its own short line just below the five lines.</p>
 
@@ -210,7 +217,7 @@ button:focus-visible, .lesson:focus-visible { outline: 3px solid var(--accent); 
   </section>
 </main>
 
-<main class="wrap" id="play" hidden>
+<main class="wrap screen" id="play" hidden>
   <div class="topbar">
     <button class="back" id="backBtn" aria-label="Back to lessons">←</button>
     <div class="title">
@@ -232,14 +239,14 @@ button:focus-visible, .lesson:focus-visible { outline: 3px solid var(--accent); 
 
   <div class="controls">
     <button class="btn primary" id="micBtn">🎤 Start listening</button>
-    <div class="meter" id="meter" hidden><span>Mic</span><div class="bar"><div id="meterBar"></div></div></div>
+    <div class="meter" id="meter" data-mic-meter-wrap hidden><span>Mic</span><div class="bar"><div id="meterBar" data-mic-meter></div></div></div>
   </div>
   <div class="controls">
     <button class="btn" id="hearBtn">Hear the note</button>
     <button class="btn" id="hintBtn">Show me the key</button>
-    <button class="btn on" id="namesBtn" aria-pressed="true">Note names: on</button>
+    <button class="btn on" id="namesBtn" data-names-toggle aria-pressed="true">Note names: on</button>
   </div>
-  <p class="notice" id="micNotice" hidden></p>
+  <p class="notice" id="micNotice" data-mic-notice hidden></p>
 
   <div>
     <div class="keyboard" id="keyboard" aria-label="On-screen keyboard. Tap a key to play it."></div>
@@ -262,6 +269,9 @@ button:focus-visible, .lesson:focus-visible { outline: 3px solid var(--accent); 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="pitch.js"></script>
+<script src="songs.js"></script>
 <script src="app.js"></script>
+<!-- Modes: each adds its own screen and registers with NoteSteps.registerMode(). -->
+<script src="perform.js"></script>
 </body>
 </html>

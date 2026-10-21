@@ -1,0 +1,49 @@
+/* Perform mode (perform.js). Uses the colour and font tokens defined in index.html. */
+.score-box { flex: none; text-align: right; display: flex; flex-direction: column; }
+.score-box strong { font-family: var(--font-display); font-size: 1.35rem; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.track-card { position: relative; overflow: hidden; }
+/* Sits over the play line (x = 108 in the track's own units, plus the card's padding and border). */
+.countin {
+  position: absolute; top: 0; bottom: 0; left: 114px; transform: translateX(-50%);
+  display: grid; place-items: center; pointer-events: none;
+  font-family: var(--font-display); font-weight: 800; font-size: 3.6rem; color: var(--accent);
+  text-shadow: 0 0 14px var(--card), 0 0 4px var(--card);
+}
+#track .pn { color: var(--ink); }
+#track .pn.next { color: var(--accent); }
+#track .pn.perfect { color: var(--good); }
+#track .pn.good { color: var(--good); opacity: 0.7; }
+#track .pn.miss { color: var(--bad); opacity: 0.55; }
+.hud {
+  min-height: 84px; border-radius: 14px; padding: 12px 16px;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 2px 12px;
+  background: var(--accent-soft); transition: background 0.15s ease;
+}
+.hud .big { font-family: var(--font-display); font-weight: 800; font-size: 1.45rem; grid-column: 1; }
+.hud .small { grid-column: 1; color: var(--muted); }
+.hud .combo { grid-column: 2; grid-row: 1 / span 2; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--accent); text-align: right; }
+.hud.perfect, .hud.good { background: var(--good-soft); }
+.hud.perfect .big, .hud.good .big { color: var(--good); }
+.hud.miss { background: var(--bad-soft); }
+.hud.miss .big { color: var(--bad); }
+.hud.early .big { color: var(--muted); }
+.panel { display: flex; flex-direction: column; gap: 12px; }
+.panel h3 { font-size: 1.1rem; }
+.speed { display: inline-flex; border: 1.5px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--card); align-self: flex-start; }
+.speed button { min-height: 44px; min-width: 72px; padding: 8px 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.speed button + button { border-left: 1.5px solid var(--line); }
+.speed button.on { background: var(--accent); color: var(--on-accent); }
+.speed-row { display: flex; flex-direction: column; gap: 6px; }
+.small-text { font-size: 0.9rem; }
+.cal-dots { display: flex; gap: 14px; }
+.cal-dots span { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--line); transition: transform 0.08s ease; }
+.cal-dots span.past { background: var(--accent-soft); border-color: var(--accent); }
+.cal-dots span.on { background: var(--accent); border-color: var(--accent); transform: scale(1.25); }
+.stat-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.stat { background: var(--paper); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; }
+.stat strong { font-family: var(--font-display); font-size: 1.4rem; font-variant-numeric: tabular-nums; }
+.stat span { font-size: 0.8rem; color: var(--muted); }
+.badge { align-self: center; background: var(--gold); color: var(--on-gold); font-weight: 700; border-radius: 999px; padding: 4px 12px; font-size: 0.85rem; }
+.unlock { font-weight: 700; color: var(--good); }
+/* The speed picker clips overflow, so draw its focus ring inside each option. */
+.speed button:focus-visible { outline-offset: -4px; }

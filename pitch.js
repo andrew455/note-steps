@@ -56,7 +56,11 @@
   function midiToFreq(m) { return 440 * Math.pow(2, (m - 69) / 12); }
   function midiName(m) { return NOTE_NAMES[((m % 12) + 12) % 12]; }
 
-  // "E4" -> { midi: 64, letter: 'E', staffPos: 0 }  (staffPos 0 = bottom line of treble staff)
+  // Length in beats: w h q e s (whole, half, quarter, eighth, sixteenth); a trailing "." makes it dotted.
+  const DUR_BEATS = { w: 4, h: 2, q: 1, e: 0.5, s: 0.25 };
+
+  // "E4" -> { midi: 64, letter: 'E', staffPos: 0, dur: 'q', beats: 1 }  (staffPos 0 = bottom line of treble staff)
+  // "D4:q." -> dotted quarter, 1.5 beats.
   function parseNote(token) {
     const [name, dur = 'q'] = token.split(':');
     const letter = name[0];
@@ -65,6 +69,7 @@
     return {
       letter,
       dur,
+      beats: DUR_BEATS[dur[0]] * (dur.endsWith('.') ? 1.5 : 1),
       midi: 12 * (octave + 1) + LETTER_SEMIS[li],
       staffPos: octave * 7 + li - 30,
     };
