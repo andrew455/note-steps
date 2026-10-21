@@ -133,7 +133,7 @@
     const song = songs[i];
     perf = { song, state: 'ready' };
     NS.showScreen('perform');
-    NS.setNoteHandler((midi, at) => heard(midi, at, 'mic'));
+    NS.setNoteHandler((midi, at, tOnset, src) => heard(midi, at, src === 'midi' ? 'tap' : 'mic'));
     $('pEyebrow').textContent = `Perform · lesson ${i + 1} of ${songs.length}`;
     $('pTitle').textContent = song.title;
     resetRun();

@@ -103,7 +103,7 @@
   function setNoteHandler(fn) {
     if (noteOff) noteOff();
     noteOff = null;
-    if (fn) noteOff = NS.input.on((ev) => { if (ev.source === 'mic') fn(ev.midi, ev.at, ev.tOnset); });
+    if (fn) noteOff = NS.input.on((ev) => { if (ev.source === 'mic' || ev.source === 'midi') fn(ev.midi, ev.at, ev.tOnset, ev.source); });
   }
 
   function showScreen(id) {

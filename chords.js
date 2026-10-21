@@ -475,8 +475,31 @@
 
   // ---------------------------------------------------------------- browser glue
   // Taps the mic source with a long FFT of its own and calls onChord('C' | 'Cm').
+  // Chords played on a USB keyboard (core/midi.js) reach the same onChord, for the same targets.
+  function listenMidi(o) {
+    const NS = typeof window !== 'undefined' ? window.NS : null;
+    if (!NS || !NS.bus) return null;
+    const targets = o.targets || ['C', 'Cm'];
+    return NS.bus.on('midi:chord', ({ name }) => {
+      if (targets.indexOf(name) < 0) return;
+      if (typeof o.muted === 'function' && o.muted()) return;
+      if (typeof o.onChord === 'function') o.onChord(name);
+    });
+  }
+  function midiOnly(o) {
+    let off = null;
+    return {
+      start() { if (!off) off = listenMidi(o); },
+      stop() { if (off) { off(); off = null; } },
+      dispose() { if (off) { off(); off = null; } },
+      analyser: null,
+    };
+  }
+
   function attach(audioContext, sourceNode, opts) {
     const o = opts || {};
+    // With no mic (a USB keyboard only) there is nothing to analyse; chords then come from NS.midi.
+    if (!sourceNode) return midiOnly(o);
     const an = audioContext.createAnalyser();
     // Keep about 3 Hz per bin (C3-octave chord tones are only 8-10 Hz apart at their fundamentals'
     // neighbours): 16384 at 44.1 / 48 kHz, 32768 (the AnalyserNode maximum) at 88.2 / 96 kHz.
@@ -509,14 +532,17 @@
         try { o.onChord(name); } catch (e) { setTimeout(() => { throw e; }); }
       }
     }
+    const offMidi = { fn: null };
     function start() {
       if (timer || !connected) return;
       det.reset();
       timer = setInterval(tick, interval);
+      offMidi.fn = listenMidi(o);
     }
     function stop() {
       clearInterval(timer);
       timer = null;
+      if (offMidi.fn) { offMidi.fn(); offMidi.fn = null; }
     }
     function dispose() {
       stop();

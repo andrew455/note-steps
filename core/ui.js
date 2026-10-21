@@ -191,7 +191,30 @@
       NS.mic.setBoost(next[0]);
       label();
     });
-    row.append(btn, sens, meter);
+    // USB keyboard (Web MIDI): exact key presses instead of listening.
+    const usb = el('button', 'btn');
+    usb.type = 'button';
+    usb.setAttribute('data-midi-btn', '');
+    const usbLabel = () => {
+      const onNow = NS.midi && NS.midi.isOn();
+      usb.textContent = onNow ? `🎹 ${NS.midi.names()[0] || 'Keyboard'} connected` : '🎹 Use USB keyboard';
+      usb.classList.toggle('on', Boolean(onNow));
+    };
+    usbLabel();
+    usb.addEventListener('click', async () => {
+      if (!NS.midi || !NS.midi.supported()) {
+        NS.ui.toast('USB keyboards work in Chrome on Android or a computer. iPhone browsers can’t read them yet, so use the microphone there.');
+        return;
+      }
+      if (NS.midi.isOn()) { NS.midi.disconnect(); return; }
+      NS.audio.resume();
+      const r = await NS.midi.connect();
+      if (!r.ok) NS.ui.toast(r.reason === 'none'
+        ? 'No keyboard found. Plug its “To Host” USB port into the phone, then tap again.'
+        : 'The browser didn’t allow access to the keyboard. Allow MIDI devices for this site, then try again.');
+    });
+    const offUsb = NS.bus.on('midi:state', usbLabel);
+    row.append(btn, sens, usb, meter);
     let noteEl = null;
     const onClick = () => {
       NS.audio.resume();
@@ -212,7 +235,7 @@
     updateMicUi();
     return {
       el: outer,
-      destroy() { btn.removeEventListener('click', onClick); outer.remove(); },
+      destroy() { btn.removeEventListener('click', onClick); offUsb(); outer.remove(); },
     };
   }
 

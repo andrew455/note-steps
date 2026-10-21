@@ -856,7 +856,7 @@
     const c = ses && ses.chord;
     if (!c) return;
     if (c.det) { try { c.det.dispose(); } catch {} c.det = null; }
-    c.card.setListening(NS.mic.isOn());
+    c.card.setListening(NS.mic.isOn() || Boolean(NS.midi && NS.midi.isOn()));
     // The popup covers the main mic button, so offer one inside it.
     const micBtn = ses.ui.chordMic;
     if (micBtn) {
@@ -864,7 +864,8 @@
       micBtn.onclick = () => { NS.audio.resume && NS.audio.resume(); NS.mic.start(); };
     }
     const src = NS.mic.isOn() && NS.mic.source ? NS.mic.source() : null;
-    if (!src || !root.ChordDetect) return;
+    const midiOn = NS.midi && NS.midi.isOn();
+    if ((!src && !midiOn) || !root.ChordDetect) return;
     c.det = root.ChordDetect.attach(NS.audio.ctx(), src, {
       targets: ['C', 'Cm'],
       muted: () => NS.audio.micMuted(performance.now()),
@@ -1085,6 +1086,7 @@
         NS.ui.toast(`You know ${core.letterOfKey(key)} now. Its name will stay hidden.`);
       }),
       NS.bus.on('mic:state', () => { if (ses && ses.chord) attachChords(); }),
+      NS.bus.on('midi:state', () => { if (ses && ses.chord) attachChords(); }),
     ];
 
     ses.logBefore = logSnapshot();

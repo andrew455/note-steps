@@ -391,6 +391,7 @@
     S.offs.push(
       NS.input.on(onInput),
       NS.bus.on('mic:state', onMicState),
+      NS.bus.on('midi:state', () => { if (S) attachDetector(); }),
       NS.bus.on('mic:onset', ({ at }) => {
         if (!S || !Number.isFinite(at)) return;
         S.onsets.push(at);
@@ -399,7 +400,7 @@
       NS.bus.on('resize', () => { if (S && S.step === 'practise') renderLive(true); }),
       NS.bus.on('visibility', ({ hidden }) => { if (hidden) stopPlayback(); }),
     );
-    if (NS.mic.isOn()) attachDetector();
+    if (NS.mic.isOn() || (NS.midi && NS.midi.isOn())) attachDetector();
     showListen();
   }
 
@@ -516,7 +517,8 @@
     detachDetector();
     const CD = root.ChordDetect;
     const src = NS.mic.source && NS.mic.source();
-    if (!CD || typeof CD.attach !== 'function' || !src || !NS.mic.isOn()) return;
+    const midiOn = NS.midi && NS.midi.isOn();
+    if (!CD || typeof CD.attach !== 'function' || ((!src || !NS.mic.isOn()) && !midiOn)) return;
     if (root.ChordBar && root.ChordBar.detects) return;
     try {
       S.det = CD.attach(NS.audio.ctx(), src, { targets: CHORD_ORDER.slice(), onChord: onChord, muted: () => Boolean(S && S.playing) || NS.audio.micMuted() });
@@ -597,7 +599,7 @@
   // ======================================================================
   function onInput(ev) {
     if (!S || S.playing) return;
-    if (ev.source === 'mic' && S.kb) S.kb.setHeard(ev.midi);
+    if ((ev.source === 'mic' || ev.source === 'midi') && S.kb) S.kb.setHeard(ev.midi);
     if (S.step === 'practise') practiseNote(ev);
     else if (S.step === 'take') takeNote(ev);
   }
