@@ -504,6 +504,8 @@
   const CHECK_NAMES = ['C', 'E', 'G'];
   async function micCheck({ ms = 10000 } = {}) {
     NS.audio.resume();
+    // With a USB keyboard there's no mic to check.
+    if (NS.midi && NS.midi.isOn()) { setFirstRun('mic'); return { ok: true, heard: [] }; }
     if (!NS.mic.isOn()) {
       const r = await NS.mic.start();
       if (!r || !r.ok) {

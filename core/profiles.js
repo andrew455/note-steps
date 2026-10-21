@@ -40,6 +40,23 @@
   }
 
   function save() { writeRaw(LIST_KEY, JSON.stringify(list)); }
+  // Every saved key that holds this player's progress.
+  function keysOf(id) {
+    const out = [];
+    try {
+      const ls = root.localStorage;
+      for (let i = 0; i < ls.length; i++) {
+        const k = ls.key(i);
+        if (!k) continue;
+        const mine = id === 'p1'
+          ? k.startsWith('note-steps') && !k.startsWith('note-steps@') && !SHARED.has(k)
+          : k.startsWith(`note-steps@${id}:`);
+        if (mine) out.push(k);
+      }
+    } catch {}
+    return out;
+  }
+  function wipe(id) { keysOf(id).forEach((k) => { try { raw.remove.call(root.localStorage, k); } catch {} }); }
   const COLORS = ['#3b6cf0', '#e05ad6', '#f0682b', '#109f8f', '#e8a10c', '#2f9e44'];
 
   const api = {
@@ -62,34 +79,20 @@
       save();
     },
     remove(id) {
-      if (id === 'p1' || list.length < 2) return; // the first player holds the original progress
-      // Delete that player's saved progress too.
-      try {
-        const ls = root.localStorage;
-        const pre = `note-steps@${id}:`;
-        const keys = [];
-        for (let i = 0; i < ls.length; i++) { const k = ls.key(i); if (k && k.startsWith(pre)) keys.push(k); }
-        keys.forEach((k) => raw.remove.call(ls, k));
-      } catch {}
+      if (list.length < 2 || !list.some((p) => p.id === id)) return;
+      wipe(id);
       list = list.filter((p) => p.id !== id);
       save();
-      if (current === id) api.switchTo(list[0].id);
+      if (current === id) { frozen = true; api.switchTo(list[0].id); }
+    },
+    // Clears one player's progress; the player stays.
+    reset(id) {
+      if (id === current) { api.resetCurrent(); return; }
+      wipe(id);
     },
     // Deletes the current player's progress (songs, scores, notes, chord stage) and starts fresh.
     resetCurrent() {
-      try {
-        const ls = root.localStorage;
-        const keys = [];
-        for (let i = 0; i < ls.length; i++) {
-          const k = ls.key(i);
-          if (!k) continue;
-          const mine = current === 'p1'
-            ? k.startsWith('note-steps') && !k.startsWith('note-steps@') && !SHARED.has(k)
-            : k.startsWith(`note-steps@${current}:`);
-          if (mine) keys.push(k);
-        }
-        keys.forEach((k) => raw.remove.call(ls, k));
-      } catch {}
+      wipe(current);
       frozen = true;
       try { sessionStorage.setItem('ns-picked', '1'); } catch {}
       root.location.hash = '#/';

@@ -125,6 +125,9 @@
   let perfTimer = null;
   let perfRaf = null;
 
+  // With a USB keyboard the notes arrive exactly, so the mic (and its timing setup) isn't needed.
+  const usbOn = () => Boolean(window.NS && window.NS.midi && window.NS.midi.isOn());
+
   function latency() {
     return store.latency != null ? store.latency : NS.outLatency() + 0.04;
   }
@@ -170,7 +173,10 @@
     ct.textContent = `Click track: ${store.clickTrack ? 'on' : 'off'}`;
     ct.classList.toggle('on', store.clickTrack);
     ct.setAttribute('aria-pressed', String(store.clickTrack));
-    $('latencyNote').textContent = store.latency != null
+    $('calBtn').hidden = usbOn();
+    $('latencyNote').textContent = usbOn()
+      ? 'USB keyboard connected: timing is exact, no setup needed.'
+      : store.latency != null
       ? `Timing is set up (${Math.round(store.latency * 1000)} ms mic delay).`
       : 'Timing isn’t set up yet. Do “Set up timing” once so the app knows your phone’s mic delay.';
     NS.updateNamesButtons();
@@ -271,7 +277,7 @@
     if (!p || p.state !== 'ready' || $('startBtn').disabled) return;
     const ac = NS.audio();
     setWaiting(true);
-    await NS.startMic(); // taps still work if the mic can't start
+    if (!usbOn()) await NS.startMic(); // taps still work if the mic can't start
     setWaiting(false);
     if (perf !== p || p.state !== 'ready' || $('perform').hidden) return;
     $('resultOverlay').hidden = true;

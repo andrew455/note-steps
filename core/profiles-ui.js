@@ -83,11 +83,17 @@
       ren.type = 'button';
       ren.setAttribute('aria-label', `Rename ${p.name}`);
       ren.addEventListener('click', () => editName(li, p));
-      li.append(pick, ren);
-      if (p.id !== 'p1') {
+      const rst = el('button', 'pf-icon', '↺');
+      rst.type = 'button';
+      rst.setAttribute('aria-label', `Reset ${p.name}’s progress`);
+      rst.title = 'Reset progress';
+      rst.addEventListener('click', () => confirmReset(li, p));
+      li.append(pick, ren, rst);
+      if (P.list().length > 1) {
         const del = el('button', 'pf-icon', '🗑');
         del.type = 'button';
-        del.setAttribute('aria-label', `Remove ${p.name}`);
+        del.setAttribute('aria-label', `Delete ${p.name}`);
+        del.title = 'Delete player';
         del.addEventListener('click', () => confirmRemove(li, p));
         li.appendChild(del);
       }
@@ -140,11 +146,19 @@
     i.focus();
     i.select();
   }
+  function confirmReset(li, p) {
+    li.innerHTML = '';
+    const msg = el('p', null, `Reset ${p.name}’s progress? Songs, scores and known notes go back to the start. ${p.name} stays as a player.`);
+    const yes = el('button', 'btn pf-danger', 'Reset');
+    const no = el('button', 'btn', 'Cancel');
+    yes.addEventListener('click', () => { P.reset(p.id); openPicker(); NS.ui.toast(`${p.name}’s progress was reset.`); });
+    no.addEventListener('click', () => openPicker());
+    li.append(msg, yes, no);
+  }
   function confirmRemove(li, p) {
     li.innerHTML = '';
-    const msg = el('p', null, `Remove ${p.name} and all their progress?`);
-    const yes = el('button', 'btn', 'Remove');
-    yes.style.color = 'var(--bad)';
+    const msg = el('p', null, `Delete ${p.name} and all their progress? This can’t be undone.`);
+    const yes = el('button', 'btn pf-danger', 'Delete');
     const no = el('button', 'btn', 'Keep');
     yes.addEventListener('click', () => { P.remove(p.id); openPicker(); refreshHome(); });
     no.addEventListener('click', () => openPicker());
