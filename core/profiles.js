@@ -10,6 +10,7 @@
   const proto = root.Storage && root.Storage.prototype;
   let list = [];
   let current = 'p1';
+  let frozen = false; // after a reset: no more saves until the page reloads
 
   const raw = {
     get: proto ? proto.getItem : null,
@@ -31,7 +32,10 @@
   };
   if (proto && raw.get) {
     proto.getItem = function (k) { return raw.get.call(this, this === root.localStorage ? mapKey(k) : k); };
-    proto.setItem = function (k, v) { return raw.set.call(this, this === root.localStorage ? mapKey(k) : k, v); };
+    proto.setItem = function (k, v) {
+      if (this === root.localStorage && frozen && typeof k === 'string' && k.startsWith('note-steps')) return undefined;
+      return raw.set.call(this, this === root.localStorage ? mapKey(k) : k, v);
+    };
     proto.removeItem = function (k) { return raw.remove.call(this, this === root.localStorage ? mapKey(k) : k); };
   }
 
@@ -70,6 +74,26 @@
       list = list.filter((p) => p.id !== id);
       save();
       if (current === id) api.switchTo(list[0].id);
+    },
+    // Deletes the current player's progress (songs, scores, notes, chord stage) and starts fresh.
+    resetCurrent() {
+      try {
+        const ls = root.localStorage;
+        const keys = [];
+        for (let i = 0; i < ls.length; i++) {
+          const k = ls.key(i);
+          if (!k) continue;
+          const mine = current === 'p1'
+            ? k.startsWith('note-steps') && !k.startsWith('note-steps@') && !SHARED.has(k)
+            : k.startsWith(`note-steps@${current}:`);
+          if (mine) keys.push(k);
+        }
+        keys.forEach((k) => raw.remove.call(ls, k));
+      } catch {}
+      frozen = true;
+      try { sessionStorage.setItem('ns-picked', '1'); } catch {}
+      root.location.hash = '#/';
+      root.location.reload();
     },
     // Switching reloads the app so every screen starts fresh with that player's progress.
     switchTo(id) {

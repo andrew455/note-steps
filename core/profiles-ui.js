@@ -19,7 +19,32 @@
     return a;
   }
 
+  // "Delete my progress" at the bottom of Home, with a confirm step on the page.
+  function resetRow(main) {
+    if (!main || main.querySelector('.pf-reset')) return;
+    const box = el('div', 'pf-reset');
+    const btn = el('button', 'btn pf-reset-btn', 'Delete my progress');
+    btn.type = 'button';
+    btn.addEventListener('click', () => {
+      const me = P.current();
+      box.innerHTML = '';
+      const msg = el('p', null, `Delete all of ${me.name}’s progress? Songs, scores and known notes go back to the start. This can’t be undone.`);
+      const yes = el('button', 'btn pf-danger', 'Yes, delete it');
+      yes.type = 'button';
+      const no = el('button', 'btn', 'Keep my progress');
+      no.type = 'button';
+      yes.addEventListener('click', () => P.resetCurrent());
+      no.addEventListener('click', () => { box.remove(); resetRow(main); });
+      const row = el('div', 'pf-reset-row');
+      row.append(yes, no);
+      box.append(msg, row);
+    });
+    box.appendChild(btn);
+    main.appendChild(box);
+  }
+
   function homeBar(main) {
+    resetRow(main);
     if (!main || main.querySelector('.pf-bar')) return;
     const me = P.current();
     const bar = el('button', 'pf-bar');
@@ -152,6 +177,10 @@
   .pf-name { font-weight: 800; font-size: 1.05rem; flex: 1; min-width: 0; overflow-wrap: anywhere; }
   .pf-here { font-size: 0.75rem; color: var(--accent); font-weight: 700; }
   .pf-icon { width: 44px; height: 44px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--card); font-size: 1.1rem; cursor: pointer; color: var(--ink); }
+  .pf-reset { display: flex; flex-direction: column; gap: 8px; padding-top: 8px; }
+  .pf-reset p { margin: 0; }
+  .pf-reset-btn, .pf-danger { color: var(--bad); border-color: var(--bad); align-self: flex-start; }
+  .pf-reset-row { display: flex; gap: 8px; flex-wrap: wrap; }
   .pf-add, .pf-edit { display: flex; gap: 8px; width: 100%; }
   .pf-add input, .pf-edit input { flex: 1; min-width: 0; font: inherit; padding: 10px 12px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--paper); color: var(--ink); }`;
   document.head.appendChild(css);
