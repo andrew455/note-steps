@@ -218,7 +218,11 @@
         : 'The browser didn’t allow access to the keyboard. Allow MIDI devices for this site, then try again.');
     });
     const offUsb = NS.bus.on('midi:state', usbLabel);
-    row.append(btn, sens, usb, meter);
+    // The app is played from a USB keyboard now: the mic button, sensitivity and level meter are hidden.
+    btn.hidden = true;
+    sens.hidden = true;
+    meter.remove();
+    row.append(btn, sens, usb);
     let noteEl = null;
     const onClick = () => {
       NS.audio.resume();

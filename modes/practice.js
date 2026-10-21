@@ -305,7 +305,7 @@
       </div>
       <button class="btn" data-ref="cold" hidden>Read a new tune with these notes</button>
       <div class="pr-chords" data-ref="chords"></div>
-      <button class="btn" type="button" data-ref="chordMic" hidden>🎤 Start listening for chords</button>
+      <button class="btn" type="button" data-ref="chordMic" hidden>🎹 Connect USB keyboard</button>
     </div>
   </div>`;
 
@@ -860,8 +860,8 @@
     // The popup covers the main mic button, so offer one inside it.
     const micBtn = ses.ui.chordMic;
     if (micBtn) {
-      micBtn.hidden = NS.mic.isOn();
-      micBtn.onclick = () => { NS.audio.resume && NS.audio.resume(); NS.mic.start(); };
+      micBtn.hidden = Boolean(NS.midi && NS.midi.isOn());
+      micBtn.onclick = () => { NS.audio.resume && NS.audio.resume(); if (NS.midi) NS.midi.connect(); };
     }
     const src = NS.mic.isOn() && NS.mic.source ? NS.mic.source() : null;
     const midiOn = NS.midi && NS.midi.isOn();

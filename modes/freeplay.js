@@ -462,7 +462,7 @@
     else if (set.rhythm === 'timed') {
       const bpm = Math.round(60000 / staff.beatMs());
       text = `Timed · 4/4 · ${set.bpm === 'auto' ? '≈' : ''}${bpm} beats a minute`;
-    } else if (!NS.mic.isOn()) text = 'Tap Start listening, or tap the keys below.';
+    } else if (!NS.mic.isOn() && !(NS.midi && NS.midi.isOn())) text = 'Connect your USB keyboard, or tap the keys below.';
     else text = staff && staff.count() ? 'Newest note on the right. Tap a note to hear it.' : 'Listening…';
     ui.statusText.textContent = text;
     ui.beat.hidden = set.rhythm !== 'timed' || Boolean(playback);

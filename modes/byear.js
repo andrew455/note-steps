@@ -391,7 +391,13 @@
     S.offs.push(
       NS.input.on(onInput),
       NS.bus.on('mic:state', onMicState),
-      NS.bus.on('midi:state', () => { if (S) attachDetector(); }),
+      NS.bus.on('midi:state', ({ on }) => {
+        if (!S) return;
+        attachDetector();
+        if (S.bar && S.bar.setListening) { try { S.bar.setListening(Boolean(on) || NS.mic.isOn()); } catch {} }
+        const h = S.fallback && S.fallback.querySelector('[data-cb-hint]');
+        if (h) h.hidden = Boolean(on) || NS.mic.isOn();
+      }),
       NS.bus.on('mic:onset', ({ at }) => {
         if (!S || !Number.isFinite(at)) return;
         S.onsets.push(at);
@@ -472,9 +478,9 @@
       b.addEventListener('click', () => { NS.audio.resume(); fire(c.chord, 'tap'); });
       row.appendChild(b);
     });
-    const hint = el('p', 'be-cb-hint muted', 'Tap Start listening to use chords');
+    const hint = el('p', 'be-cb-hint muted', 'Connect your USB keyboard to use chords');
     hint.dataset.cbHint = '';
-    hint.hidden = NS.mic.isOn();
+    hint.hidden = NS.mic.isOn() || Boolean(NS.midi && NS.midi.isOn());
     bar.append(row, hint);
     document.body.appendChild(bar);
     S.fallback = bar;
@@ -1015,7 +1021,7 @@
     } else {
       dBox.appendChild(el('p', 'muted', r.total ? 'You played every note of the song, by ear. Well done!' : ''));
     }
-    if (!S.takeNotes.length) dBox.appendChild(el('p', 'muted', 'No notes were recorded in this take. Start listening, or open the on-screen keys, and try again.'));
+    if (!S.takeNotes.length) dBox.appendChild(el('p', 'muted', 'No notes were recorded in this take. Check your USB keyboard is connected, or use the on-screen keys, and try again.'));
 
     S.body.append(sum, legend, card, tools, dBox);
     S.compareUi = { svg, scroller, hearSong, hearTake };

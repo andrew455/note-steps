@@ -214,7 +214,7 @@
       status.classList.toggle('cc-off', !listening);
       statusText.textContent = listening
         ? 'Listening for a chord…'
-        : 'Tap Start listening to use chords. The buttons work too.';
+        : 'Connect your USB keyboard to use chords. The buttons work too.';
     }
     showListening();
 
