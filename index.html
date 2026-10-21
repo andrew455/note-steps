@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f2f4f7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Note Steps</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=Noto+Music&display=swap">
+<style>
+/* Layout: one column, staff card on top, feedback in the middle, on-screen keyboard at the bottom. */
+:root {
+  --paper: #f2f4f7;
+  --card: #ffffff;
+  --ink: #1b2233;
+  --muted: #5d6679;
+  --line: #c9cfdb;
+  --accent: #2f62d8;
+  --accent-soft: #e3ebfc;
+  --good: #1f8a5b;
+  --good-soft: #dcf3e8;
+  --bad: #c8333d;
+  --bad-soft: #fbe3e4;
+  --key-white: #ffffff;
+  --key-black: #1d212b;
+  --key-heard: #cddbff;
+  --key-hint: #c9efdb;
+  --key-label: #5d6679;
+  --font-display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Helvetica Neue", system-ui, sans-serif;
+  --font-music: "Noto Music", "Bravura", "Apple Symbols", serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #12151c;
+    --card: #1b2029;
+    --ink: #e8ebf2;
+    --muted: #9aa3b5;
+    --line: #3a4252;
+    --accent: #6e98ff;
+    --accent-soft: #24304d;
+    --good: #4cc98f;
+    --good-soft: #1b3a2d;
+    --bad: #ff6b74;
+    --bad-soft: #43242a;
+    --key-white: #e9ecf2;
+    --key-black: #0b0d12;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 16px/1.5 var(--font-body);
+  -webkit-tap-highlight-color: transparent;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.15; }
+h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.01em; }
+h2 { font-size: 1.35rem; font-weight: 800; }
+p { margin: 0; }
+.muted { color: var(--muted); }
+.eyebrow { font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+
+button {
+  font: inherit;
+  color: inherit;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+button:focus-visible, .lesson:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; padding: 10px 16px; border-radius: 12px;
+  font-weight: 700; background: var(--card); border: 1.5px solid var(--line);
+}
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.btn:disabled { opacity: 0.5; cursor: default; }
+
+/* Home */
+.hero { display: flex; flex-direction: column; gap: 8px; }
+.hero-staff { width: 100%; max-width: 360px; height: auto; color: var(--ink); }
+.level-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.lessons { display: flex; flex-direction: column; gap: 10px; list-style: none; padding: 0; margin: 0; }
+.lesson {
+  width: 100%; text-align: left;
+  display: grid; grid-template-columns: 40px 1fr auto; align-items: center; gap: 14px;
+  padding: 14px 16px; border-radius: 14px; background: var(--card); border: 1.5px solid var(--line);
+}
+.lesson .num {
+  width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+  font-family: var(--font-display); font-weight: 800; background: var(--accent-soft); color: var(--accent);
+}
+.lesson.done .num { background: var(--good-soft); color: var(--good); }
+.lesson .meta { min-width: 0; }
+.lesson .meta strong { display: block; font-size: 1.05rem; }
+.lesson .meta span { font-size: 0.9rem; color: var(--muted); }
+.lesson .go { color: var(--muted); font-size: 1.4rem; }
+.tip { background: var(--card); border-radius: 14px; padding: 14px 16px; border: 1.5px dashed var(--line); font-size: 0.95rem; }
+.qr { display: flex; gap: 16px; align-items: center; background: var(--card); border-radius: 14px; padding: 14px 16px; border: 1.5px solid var(--line); }
+.qr-code { background: #fff; padding: 8px; border-radius: 8px; flex: none; }
+.qr-code img, .qr-code canvas { display: block; width: 120px; height: 120px; }
+.qr .meta { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.qr .url { font-size: 0.85rem; color: var(--muted); word-break: break-all; }
+
+/* Play screen */
+.topbar { display: flex; align-items: center; gap: 12px; }
+.topbar .title { flex: 1; min-width: 0; }
+.topbar .title h2 { font-size: 1.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.back { width: 44px; height: 44px; border-radius: 12px; background: var(--card); border: 1.5px solid var(--line); font-size: 1.3rem; flex: none; }
+.progress { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.progress > div { height: 100%; background: var(--good); width: 0; transition: width 0.25s ease; }
+.count { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 0.9rem; flex: none; }
+
+.staff-card { background: var(--card); border-radius: 16px; border: 1.5px solid var(--line); padding: 8px 4px; }
+.staff-card svg { display: block; width: 100%; height: auto; }
+.staff-card .page-note { text-align: center; font-size: 0.8rem; color: var(--muted); padding-bottom: 4px; }
+
+.feedback {
+  min-height: 84px; border-radius: 14px; padding: 14px 16px;
+  display: flex; flex-direction: column; justify-content: center; gap: 2px;
+  background: var(--accent-soft);
+  transition: background 0.2s ease;
+}
+.feedback .big { font-family: var(--font-display); font-weight: 800; font-size: 1.45rem; }
+.feedback.good { background: var(--good-soft); }
+.feedback.good .big { color: var(--good); }
+.feedback.bad { background: var(--bad-soft); }
+.feedback.bad .big { color: var(--bad); }
+
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.meter { flex: 1 1 120px; display: flex; align-items: center; gap: 8px; min-width: 120px; font-size: 0.85rem; color: var(--muted); }
+.meter .bar { flex: 1; height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.meter .bar > div { height: 100%; width: 0; background: var(--accent); transition: width 0.06s linear; }
+
+.keyboard { position: relative; height: 150px; user-select: none; touch-action: manipulation; }
+.keyboard .white, .keyboard .black { position: absolute; top: 0; border-radius: 0 0 8px 8px; display: flex; align-items: flex-end; justify-content: center; font-size: 0.8rem; font-weight: 700; padding-bottom: 8px; }
+.keyboard .white { height: 100%; background: var(--key-white); border: 1.5px solid var(--line); color: var(--key-label); }
+.keyboard .black { height: 60%; background: var(--key-black); z-index: 2; color: transparent; }
+.keyboard .white.heard { background: var(--key-heard); box-shadow: inset 0 -6px 0 var(--accent); color: var(--key-label); }
+.keyboard .black.heard { background: var(--accent); }
+.keyboard .white.hint { background: var(--key-hint); box-shadow: inset 0 -6px 0 var(--good); }
+.keyboard .black.hint { background: var(--good); }
+.keyboard .middle-c::after { content: "middle"; position: absolute; bottom: 28px; font-size: 0.62rem; font-weight: 400; color: var(--key-label); letter-spacing: 0.02em; }
+
+.notice { font-size: 0.9rem; color: var(--bad); }
+
+/* Done overlay */
+.overlay { position: fixed; inset: 0; background: rgba(10, 14, 22, 0.55); display: grid; place-items: center; padding: 16px; z-index: 10; }
+.dialog { background: var(--card); border-radius: 20px; padding: 24px; max-width: 420px; width: 100%; display: flex; flex-direction: column; gap: 14px; text-align: center; }
+.dialog .row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.stars { font-size: 2.2rem; letter-spacing: 0.1em; color: #e0a526; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+
+<main class="wrap" id="home">
+  <section class="hero">
+    <svg class="hero-staff" viewBox="0 0 360 90" aria-hidden="true">
+      <g stroke="currentColor" stroke-width="1.2" opacity="0.55">
+        <line x1="0" x2="360" y1="20" y2="20"/><line x1="0" x2="360" y1="32" y2="32"/><line x1="0" x2="360" y1="44" y2="44"/><line x1="0" x2="360" y1="56" y2="56"/><line x1="0" x2="360" y1="68" y2="68"/>
+      </g>
+      <text x="4" y="66" font-size="62" fill="currentColor" font-family="Noto Music, serif">𝄞</text>
+      <g fill="currentColor" id="heroNotes"></g>
+    </svg>
+    <span class="eyebrow">Learn to read music</span>
+    <h1>Note Steps</h1>
+    <p class="muted">Read the note on the staff, then play it on your piano or keyboard. Your phone listens and tells you if you got it right. There's no timer, so take as long as you need.</p>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:12px">
+    <div class="level-head">
+      <h2>Level 1 · C major, right hand</h2>
+      <span class="muted" id="levelCount"></span>
+    </div>
+    <ul class="lessons" id="lessons"></ul>
+  </section>
+
+  <p class="tip"><strong>Finding middle C:</strong> look for a group of two black keys near the middle of your keyboard. The white key just to the left of them is C. On the staff, middle C sits on its own short line just below the five lines.</p>
+
+  <section class="qr" id="qrBox" hidden>
+    <div class="qr-code" id="qrCode"></div>
+    <div class="meta">
+      <strong>Open on your phone</strong>
+      <span class="muted">Point your phone's camera at this code, then prop the phone near your keyboard.</span>
+      <span class="url" id="qrUrl"></span>
+    </div>
+  </section>
+</main>
+
+<main class="wrap" id="play" hidden>
+  <div class="topbar">
+    <button class="back" id="backBtn" aria-label="Back to lessons">←</button>
+    <div class="title">
+      <span class="eyebrow" id="playEyebrow">Lesson</span>
+      <h2 id="playTitle"></h2>
+    </div>
+    <span class="count" id="count"></span>
+  </div>
+  <div class="progress"><div id="progressBar"></div></div>
+
+  <div class="staff-card">
+    <svg id="staff" role="img" aria-label="Music staff"></svg>
+  </div>
+
+  <div class="feedback" id="feedback" aria-live="polite">
+    <span class="big" id="fbBig"></span>
+    <span id="fbSmall" class="muted"></span>
+  </div>
+
+  <div class="controls">
+    <button class="btn primary" id="micBtn">🎤 Start listening</button>
+    <div class="meter" id="meter" hidden><span>Mic</span><div class="bar"><div id="meterBar"></div></div></div>
+  </div>
+  <div class="controls">
+    <button class="btn" id="hearBtn">Hear the note</button>
+    <button class="btn" id="hintBtn">Show me the key</button>
+    <button class="btn on" id="namesBtn" aria-pressed="true">Note names: on</button>
+  </div>
+  <p class="notice" id="micNotice" hidden></p>
+
+  <div>
+    <div class="keyboard" id="keyboard" aria-label="On-screen keyboard. Tap a key to play it."></div>
+    <p class="muted" style="font-size:0.85rem;margin-top:8px">The blue key shows the note your phone heard. No piano nearby? You can also tap these keys.</p>
+  </div>
+</main>
+
+<div class="overlay" id="doneOverlay" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="doneTitle">
+    <div class="stars" id="doneStars">★★★</div>
+    <h2 id="doneTitle">Well played!</h2>
+    <p class="muted" id="doneText"></p>
+    <div class="row">
+      <button class="btn" id="againBtn">Play again</button>
+      <button class="btn primary" id="nextBtn">Next lesson</button>
+    </div>
+    <button class="btn" id="listBtn">All lessons</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="pitch.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
