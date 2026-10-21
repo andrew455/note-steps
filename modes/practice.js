@@ -870,7 +870,7 @@
     const micBtn = ses.ui.chordMic;
     if (micBtn) {
       micBtn.hidden = Boolean(NS.midi && NS.midi.isOn());
-      micBtn.onclick = () => { NS.audio.resume && NS.audio.resume(); if (NS.midi) NS.midi.connect(); };
+      micBtn.onclick = () => { NS.audio.resume && NS.audio.resume(); if (NS.midi) NS.midi.connect().then((r) => { if (!r.ok && NS.midiCheck) NS.midiCheck.open(); }); };
     }
     const src = NS.mic.isOn() && NS.mic.source ? NS.mic.source() : null;
     const midiOn = NS.midi && NS.midi.isOn();

@@ -208,16 +208,15 @@
     };
     usbLabel();
     usb.addEventListener('click', async () => {
-      if (!NS.midi || !NS.midi.supported()) {
-        NS.ui.toast('USB keyboards work in Chrome on Android or a computer. iPhone browsers can’t read them yet, so use the microphone there.');
-        return;
+      // Connected: open the keyboard check (key test, disconnect). Not connected: try, and if that
+      // fails show the check with what's wrong and how to fix it.
+      if (NS.midi && NS.midi.isOn()) { if (NS.midiCheck) NS.midiCheck.open(); return; }
+      if (NS.midi && NS.midi.supported()) {
+        NS.audio.resume();
+        const r = await NS.midi.connect();
+        if (r.ok) { NS.ui.toast(`🎹 ${NS.midi.names()[0] || 'Keyboard'} connected`); return; }
       }
-      if (NS.midi.isOn()) { NS.midi.disconnect(); return; }
-      NS.audio.resume();
-      const r = await NS.midi.connect();
-      if (!r.ok) NS.ui.toast(r.reason === 'none'
-        ? 'No keyboard found. Plug its “To Host” USB port into the phone, then tap again.'
-        : 'The browser didn’t allow access to the keyboard. Allow MIDI devices for this site, then try again.');
+      if (NS.midiCheck) NS.midiCheck.open();
     });
     const offUsb = NS.bus.on('midi:state', usbLabel);
     // The app is played from a USB keyboard now: the mic button, sensitivity and level meter are hidden.

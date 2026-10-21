@@ -116,20 +116,34 @@
     NS.bus.emit('midi:state', { on, names: names.slice() });
   }
 
+  // 'granted' | 'prompt' | 'denied' | 'unknown' — without asking.
+  async function permission() {
+    try {
+      const st = await navigator.permissions.query({ name: 'midi', sysex: false });
+      return st.state;
+    } catch { return 'unknown'; }
+  }
+
   async function connect() {
     if (!supported()) {
       const r = { ok: false, reason: 'unsupported' };
       NS.bus.emit('midi:state', Object.assign({ on: false }, r));
       return r;
     }
+    if ((await permission()) === 'denied') {
+      const r = { ok: false, reason: 'blocked' };
+      NS.bus.emit('midi:state', Object.assign({ on: false }, r));
+      return r;
+    }
     try {
-      access = access || await navigator.requestMIDIAccess();
+      access = access || await navigator.requestMIDIAccess({ sysex: false });
       access.onstatechange = wire;
       wire();
       try { localStorage.setItem(KEY, '1'); } catch {}
       return { ok: on, reason: on ? null : 'none' };
     } catch (err) {
-      const r = { ok: false, reason: 'denied' };
+      const blocked = err && (err.name === 'NotAllowedError' || err.name === 'SecurityError');
+      const r = { ok: false, reason: blocked ? 'blocked' : 'error', message: err && err.message };
       NS.bus.emit('midi:state', Object.assign({ on: false }, r));
       return r;
     }
@@ -151,12 +165,14 @@
     connect,
     disconnect,
     isOn: () => on,
+    permission,
     heldCount: () => held.size,
     names: () => names.slice(),
   };
 
-  // Reconnect automatically when it was used before (Chrome remembers the permission).
+  // Reconnect by itself only when Chrome already allows it. (Asking without a tap counts as the
+  // site being pushy, and Chrome then starts blocking the keyboard.)
   let wanted = false;
   try { wanted = localStorage.getItem(KEY) === '1'; } catch {}
-  if (wanted && supported()) setTimeout(connect, 0);
+  if (wanted && supported()) permission().then((st) => { if (st === 'granted') connect(); });
 })(typeof window !== 'undefined' ? window : globalThis);
