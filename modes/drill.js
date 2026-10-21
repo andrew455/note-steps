@@ -549,7 +549,39 @@
   const labelVisible = () => Boolean(s.att && s.att.labelAt != null);
   const promptText = () => (labelVisible() ? `Play ${core.displayLetter(s.att.key)}` : 'Play the blue note');
 
+  // A quick green "✓ E" in the corner, so the next note can show at once.
+  function cornerGood(text) {
+    let pill = document.querySelector('.dr-corner');
+    if (!pill) {
+      pill = document.createElement('div');
+      pill.className = 'dr-corner';
+      pill.setAttribute('aria-live', 'polite');
+      document.body.appendChild(pill);
+    }
+    pill.textContent = '✓ ' + text;
+    pill.classList.remove('show');
+    void pill.offsetWidth;
+    pill.classList.add('show');
+    clearTimeout(cornerGood.t);
+    cornerGood.t = setTimeout(() => pill.classList.remove('show'), 900);
+  }
+  if (!document.getElementById('dr-corner-style')) {
+    const st = document.createElement('style');
+    st.id = 'dr-corner-style';
+    st.textContent = `.dr-corner { position: fixed; top: calc(12px + env(safe-area-inset-top, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); z-index: 40;
+      background: var(--good); color: #fff; font-weight: 800; padding: 8px 14px; border-radius: 999px; font-size: 1.05rem;
+      opacity: 0; transform: translateY(-6px); transition: opacity .12s, transform .12s; pointer-events: none; }
+      .dr-corner.show { opacity: 1; transform: none; }
+      @media (prefers-reduced-motion: reduce) { .dr-corner { transition: none; } }`;
+    document.head.appendChild(st);
+  }
+
   function onInput(ev) {
+    // On a "This is C" card, playing that note goes on (like tapping Next).
+    if (s && s.phase === 'card' && s.target && !s.locked) {
+      if (pc(ev.midi) === pc(s.target.midi)) { cornerGood(core.displayLetter(s.meetKeys[s.cardIdx])); onNext(); }
+      return;
+    }
     if (!s || s.locked || !s.att || !s.target) return;
     if (!['find', 'drill', 'phrase', 'check', 'one'].includes(s.phase)) return;
     if (NS.audio.isBusy() && ev.source !== 'midi') return; // our own sound; the mic is muted anyway, this also catches taps
@@ -582,17 +614,16 @@
     const { outcome, rtMs } = recordRight(ev, source);
     s.locked = true;
     if (s.kb) s.kb.setHint(null);
-    drawCard({ key, color: 'var(--good)', fill: 'var(--good-soft)', label: true });
     const quick = outcome !== 'miss' && rtMs < core.T.quickMs;
-    const pos = core.shortPos(key);
-    s.fb.set('good', `Yes! ${core.displayLetter(key)}${pos ? ', ' + pos : ''}.`, quick ? 'quick!' : '');
+    cornerGood(core.displayLetter(key) + (quick ? ' · quick!' : ''));
+    s.fb.set('neutral', '', '');
     setInfo('');
     if (s.phase === 'drill') {
       s.run.answer({ firstTry: outcome !== 'miss' && !s.run.current().missed, outcome, rtMs });
-      later(nextDrillCard, 650);
+      later(nextDrillCard, 0);
     } else {
       s.findPos++;
-      later(nextFindCard, 650);
+      later(nextFindCard, 0);
     }
   }
 
@@ -983,9 +1014,42 @@
       s.fb.set('neutral', 'I didn’t catch that clearly', 'Play it again.');
       return;
     }
+    if (!ok) {
+      // Scored once as not read; then wait here for the right note.
+      if (!s.att.scored) { s.att.scored = true; scoreCheck(false, null, key); }
+      const played = NS.notation.spellMidi(core.nearestOctave(ev.midi, s.target.midi));
+      drawCard({ key, color: 'var(--bad)', fill: 'var(--bad-soft)', label: true });
+      if (s.kb) s.kb.setHint(s.target.midi);
+      s.fb.set('bad', `You played ${core.displayLetter(played.key)}.`, `This one is ${s.target.letter}. Play ${s.target.letter} to go on (the green key).`);
+      return;
+    }
     s.locked = true;
-    if (ok) s.att.lastCorrectAt = ev.tOnset;
-    checkAnswer(ok, rtMs, key);
+    s.att.lastCorrectAt = ev.tOnset;
+    if (s.kb) s.kb.setHint(null);
+    if (!s.att.scored) scoreCheck(true, rtMs, key);
+    cornerGood(core.displayLetter(key));
+    advanceCheck();
+  }
+  // Records a note-check answer once per card; advanceCheck() then moves on.
+  function scoreCheck(read, rtMs, key) {
+    if (s.phase === 'one') {
+      const card = s.oneCards[s.onePos];
+      s.oneAnswers.push({ key, scored: card.scored, read, rtMs });
+      s.oneFailed = card.scored && !(read && rtMs < core.T.checkFastMs);
+    } else {
+      s.check.answer(read, rtMs);
+    }
+  }
+  function advanceCheck() {
+    s.fb.set('neutral', '', '');
+    if (s.phase === 'one') {
+      s.onePos++;
+      const failed = s.oneFailed;
+      s.oneFailed = false;
+      later(failed ? finishCheck : nextCheckCard, 0);
+    } else {
+      later(nextCheckCard, 0);
+    }
   }
   function onSkip() {
     if (!s || s.locked || !s.att || (s.phase !== 'check' && s.phase !== 'one')) return;
