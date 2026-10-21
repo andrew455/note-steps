@@ -104,15 +104,23 @@
     NS.bus.emit('midi:chord', { name: id });
   }
 
+  let lastSig = null;
+  let everConnected = false;
   function wire() {
     names = [];
     access.inputs.forEach((input) => {
       input.onmidimessage = onMessage;
       names.push(input.name || 'USB keyboard');
     });
+    const was = on;
+    const sig = names.join('|');
     on = names.length > 0;
     // Keep the screen on and bright while a keyboard is plugged in (no dimming, no auto-lock).
     if (on) NS.wake.hold('midi'); else NS.wake.release('midi');
+    if (on === was && sig === lastSig) return; // nothing changed: don't make every screen redraw
+    lastSig = sig;
+    if (on && !was && everConnected) NS.bus.emit('midi:found', { names: names.slice() });
+    if (on) everConnected = true;
     NS.bus.emit('midi:state', { on, names: names.slice() });
   }
 
@@ -174,7 +182,19 @@
 
   // Reconnect by itself only when Chrome already allows it. (Asking without a tap counts as the
   // site being pushy, and Chrome then starts blocking the keyboard.)
-  let wanted = false;
-  try { wanted = localStorage.getItem(KEY) === '1'; } catch {}
-  if (wanted && supported()) permission().then((st) => { if (st === 'granted') connect(); });
+  // Android's Chrome can lose the keyboard (screen locked, app switched, cable wobbled) and doesn't
+  // always notice it coming back, so: reconnect from scratch when the app comes back into view, and
+  // while the keyboard is missing, look again every 3 seconds.
+  const wanted = () => { try { return localStorage.getItem(KEY) === '1'; } catch { return false; } };
+  let busy = false;
+  async function autoConnect(fresh) {
+    if (busy || !supported() || !wanted() || document.hidden) return;
+    busy = true;
+    try {
+      if ((await permission()) === 'granted') await connect({ fresh });
+    } finally { busy = false; }
+  }
+  autoConnect(false);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) autoConnect(true); });
+  setInterval(() => { if (!on) autoConnect(true); }, 3000);
 })(typeof window !== 'undefined' ? window : globalThis);

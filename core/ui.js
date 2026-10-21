@@ -157,6 +157,7 @@
     if (s.on) micNotice('');
     else if (s.message) micNotice(s.message);
   });
+  NS.bus.on('midi:found', ({ names }) => toast(`🎹 ${names[0] || 'Keyboard'} connected`, { ms: 1800 }));
   NS.bus.on('midi:chordname', ({ label, used }) => {
     // Free Play shows every chord itself; elsewhere a short note confirms it was heard.
     if (document.querySelector('main.wrap:not([hidden])[data-mode="free"]')) return;
