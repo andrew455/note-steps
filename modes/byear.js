@@ -196,6 +196,51 @@
   };
   const audioNow = () => { try { return NS.audio.ctx().currentTime; } catch { return performance.now() / 1000; } };
 
+  // A song is learned in short parts: its phrases, with long ones cut into pieces of about 4 notes, so
+  // you only ever hear a few notes before copying them.
+  const PART_MAX = 6;
+  function sectionsOf(song) {
+    const n = song.notes.length;
+    let phrases = Array.isArray(song.phrases) && song.phrases.length ? song.phrases : [];
+    if (!phrases.length) for (let a = 0; a < n; a += 4) phrases.push([a, Math.min(n, a + 4)]);
+    const out = [];
+    for (const [a, b] of phrases) {
+      const len = b - a;
+      if (len <= PART_MAX) { out.push([a, b]); continue; }
+      const pieces = Math.ceil(len / 4);
+      const size = Math.ceil(len / pieces);
+      for (let x = a; x < b; x += size) out.push([x, Math.min(b, x + size)]);
+    }
+    // Fold a lone 1-2 note scrap into the part before it.
+    for (let i = out.length - 1; i > 0; i--) {
+      if (out[i][1] - out[i][0] <= 2 && out[i - 1][1] - out[i - 1][0] + (out[i][1] - out[i][0]) <= PART_MAX + 1) {
+        out[i - 1] = [out[i - 1][0], out[i][1]];
+        out.splice(i, 1);
+      }
+    }
+    return out;
+  }
+  function sectionSong(k) {
+    const [a, b] = S.sections[k];
+    return Object.assign({}, S.full, { notes: S.full.notes.slice(a, b), items: null, id: `${S.full.id}~${k + 1}` });
+  }
+  function goSection(k) {
+    S.sec = k;
+    S.song = sectionSong(k);
+    S.autoPlayed = false;
+    S.take = [];
+    S.takeNotes = [];
+    S.gestures = [];
+    S.result = null;
+    updatePartLabel();
+    showListen();
+  }
+  function updatePartLabel() {
+    if (!S.partEl) return;
+    const n = S.sections.length;
+    S.partEl.textContent = `Part ${S.sec + 1} of ${n} · ${S.song.notes.length} notes`;
+  }
+
   function mount(rootEl, params, ctx) {
     S = {
       root: rootEl, ctx, song: null, step: 'list', offs: [], timers: new Set(), raf: 0,
@@ -213,7 +258,11 @@
       return;
     }
     if (!song) { renderList(); return; }
-    S.song = song;
+    S.full = song;
+    S.sections = sectionsOf(song);
+    S.sec = 0;
+    S.secPcts = [];
+    S.song = sectionSong(0);
     try { S.names = NS.store.settings().labels !== 'never'; } catch { S.names = true; }
     renderSongScreen();
   }
@@ -325,6 +374,8 @@
       S.stepEls[id] = li;
     });
     S.body = el('div', 'be-body');
+    S.partEl = el('p', 'be-part eyebrow');
+    S.partEl.setAttribute('aria-live', 'polite');
     const micSlot = el('div');
     const notice = el('p', 'notice');
     notice.setAttribute('data-mic-notice', '');
@@ -332,7 +383,8 @@
     S.live = el('p', 'be-sr');
     S.live.setAttribute('aria-live', 'polite');
     S.live.setAttribute('role', 'status');
-    r.append(bar, steps, S.body, micSlot, notice, S.live);
+    r.append(bar, steps, S.partEl, S.body, micSlot, notice, S.live);
+    updatePartLabel();
     S.micBar = NS.ui.micBar(micSlot);
     micSlot.replaceWith(S.micBar.el);
 
@@ -582,7 +634,7 @@
     row.append(svg, kbEl);
     firstCard.appendChild(row);
 
-    const note = el('p', 'muted be-ear-note', 'The tune isn’t shown. Listen, then work it out on your piano.');
+    const note = el('p', 'muted be-ear-note', 'Just a few notes at a time. The tune isn’t shown: listen, then work it out on your piano.');
     const prog = el('div', 'progress be-progress');
     prog.setAttribute('role', 'progressbar');
     prog.setAttribute('aria-label', 'Song playing');
@@ -867,6 +919,14 @@
       const id = S.song.id;
       saveSlice((s) => { s.best[id] = { pct, at: Date.now() }; });
     }
+    // The whole song's best is the average of its parts, saved once every part has a take.
+    S.secPcts[S.sec] = S.result.pct;
+    if (S.sec === S.sections.length - 1 && S.secPcts.filter((x) => x != null).length === S.sections.length) {
+      const avg = Math.round(S.secPcts.reduce((a, b) => a + b, 0) / S.sections.length);
+      const fid = S.full.id;
+      const prev = bestOf(fid);
+      if (!prev || avg > prev.pct) saveSlice((s) => { s.best[fid] = { pct: avg, at: Date.now() }; });
+    }
   }
 
   // ======================================================================
@@ -934,14 +994,16 @@
     drawCompare();
     announce(`${B.summaryText(r)}.${S.newBest ? ' New best!' : ''}`);
     setCommands([
-      { chord: 'C', label: 'Next song', announce: 'opening the next song', run: () => nextSong() },
-      { chord: 'Cm', label: 'Try again', announce: 'back to practice', run: () => showPractise() },
+      S.sec < S.sections.length - 1
+        ? { chord: 'C', label: 'Next part', announce: 'on to the next part', run: () => goSection(S.sec + 1) }
+        : { chord: 'C', label: 'Next song', announce: 'opening the next song', run: () => nextSong() },
+      { chord: 'Cm', label: 'Try this part again', announce: 'back to practice', run: () => showPractise() },
     ]);
   }
 
   function nextSong() {
     const list = library();
-    const i = list.findIndex((s) => s.id === S.song.id);
+    const i = list.findIndex((s) => s.id === S.full.id);
     const next = list[i + 1];
     S.ctx.go(next ? `#/byear/${encodeURIComponent(next.id)}` : '#/byear');
   }

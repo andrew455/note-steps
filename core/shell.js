@@ -140,14 +140,26 @@
   }
 
   // In-app back stack: going to the route just below the top pops; anything else pushes.
+  // Steps inside one screen (e.g. #/ear/mary?step=echo, #/drill?meet=C4) share a base path: they
+  // replace each other on the stack, so Back always leaves the screen instead of stepping through it.
+  const basePath = (r) => String(r || '').split('?')[0];
   function nextStack(stack, route) {
     const s = stack || [];
     if (s.length && s[s.length - 1] === route) return s;
-    if (s.length >= 2 && s[s.length - 2] === route) return s.slice(0, -1);
+    if (s.length >= 2 && basePath(s[s.length - 2]) === basePath(route)) return s.slice(0, -2).concat(route);
     if (route === '#/') return ['#/'];
+    if (s.length && basePath(s[s.length - 1]) === basePath(route)) return s.slice(0, -1).concat(route);
     return s.concat(route).slice(-50);
   }
-  const backTarget = (stack) => (stack && stack.length >= 2 ? stack[stack.length - 2] : '#/');
+  function backTarget(stack) {
+    const s = stack || [];
+    const here = basePath(s[s.length - 1]);
+    for (let i = s.length - 2; i >= 0; i--) if (basePath(s[i]) !== here) return s[i];
+    // Nothing earlier (opened from a link or a reload): a song screen goes to its mode's list.
+    const m = /^#\/(practice|perform|ear|byear)\/[^/?]+/.exec(here);
+    if (m) return m[1] === 'practice' || m[1] === 'perform' ? `#/songs/${m[1]}` : `#/${m[1]}`;
+    return '#/';
+  }
 
   const Core = {
     STAGE_NAMES, parseRoute, songKeys, stageOf, groupByStage, FILTERS, isEtude, matchesFilter,

@@ -174,7 +174,24 @@
     meter.setAttribute('aria-hidden', 'true');
     meter.hidden = true;
     meter.innerHTML = '<span>Mic</span><div class="bar"><div data-mic-meter></div></div>';
-    row.append(btn, meter);
+    // Sensitivity: how much the app boosts the mic. Cycles Normal (x2), High (x4), Max (x10).
+    const LEVELS = [[2, 'Normal'], [4, 'High'], [10, 'Max']];
+    const sens = el('button', 'btn');
+    sens.type = 'button';
+    const label = () => {
+      const b = NS.mic.boost ? NS.mic.boost() : 4;
+      const cur = LEVELS.reduce((a, l) => (Math.abs(l[0] - b) < Math.abs(a[0] - b) ? l : a));
+      sens.textContent = `Sensitivity: ${cur[1]}`;
+      return cur;
+    };
+    label();
+    sens.addEventListener('click', () => {
+      const cur = label();
+      const next = LEVELS[(LEVELS.indexOf(cur) + 1) % LEVELS.length];
+      NS.mic.setBoost(next[0]);
+      label();
+    });
+    row.append(btn, sens, meter);
     let noteEl = null;
     const onClick = () => {
       NS.audio.resume();

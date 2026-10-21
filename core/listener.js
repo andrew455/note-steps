@@ -20,7 +20,7 @@
   const isNode = typeof module !== 'undefined' && module.exports;
 
   const DEFAULT_PARAMS = {
-    minGate: 0.008, floorMult: 3, quietMult: 0.6, retriggerMs: 110, rise: 1.7, riseRepeat: 1.35,
+    minGate: 0.002, floorMult: 3, quietMult: 0.6, retriggerMs: 110, rise: 1.7, riseRepeat: 1.35,
     riseLookback: 4, voteStartMs: 35, centsTol: 0.4, agree: 2, timeoutMs: 500, minHz: 70, maxHz: 1400,
   };
 

@@ -477,6 +477,10 @@
   let hopMs = 25;
   let micStarting = null;
   let level = 0;
+  let boostNode = null;
+  const BOOST_KEY = 'note-steps-mic-boost';
+  let boost = 4;
+  try { const b = parseFloat(localStorage.getItem(BOOST_KEY)); if (b > 0) boost = b; } catch {}
   const listener = NS.listener.create({ detectPitch, freqToMidi });
 
   const MSG = {
@@ -509,16 +513,21 @@
       const c = ctx();
       setSessionType('play-and-record');
       stream = await navigator.mediaDevices.getUserMedia({
-        audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+        // Auto gain on: phone mics are very quiet with it off, and a piano a metre away barely registers.
+        audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: true },
       });
       micSource = c.createMediaStreamSource(stream);
       // Two low-pass stages: piano notes pass, the metronome's high clicks don't.
       const lp1 = c.createBiquadFilter();
       const lp2 = c.createBiquadFilter();
       [lp1, lp2].forEach((f) => { f.type = 'lowpass'; f.frequency.value = 1400; f.Q.value = 0.707; });
+      // Extra boost on top (the Sensitivity setting). Pitch detection doesn't mind the level, but the
+      // note gate does, so quiet phones need it.
+      boostNode = c.createGain();
+      boostNode.gain.value = boost;
       analyser = c.createAnalyser();
       analyser.fftSize = 2048;
-      micSource.connect(lp1).connect(lp2).connect(analyser);
+      micSource.connect(lp1).connect(lp2).connect(boostNode).connect(analyser);
       buf = new Float32Array(analyser.fftSize);
       const s = stream;
       stream.getAudioTracks().forEach((t) => t.addEventListener('ended', () => {
@@ -595,6 +604,13 @@
     },
     // Not in the §2.4.3 contract: the raw nodes, for detectors that attach to the mic (chords.js).
     source: () => micSource,
+    boost: () => boost,
+    setBoost(x) {
+      boost = x;
+      if (boostNode) boostNode.gain.value = x;
+      try { localStorage.setItem(BOOST_KEY, String(x)); } catch {}
+      NS.bus.emit('mic:boost', { boost: x });
+    },
     analyser: () => analyser,
   };
 })(typeof window !== 'undefined' ? window : globalThis);

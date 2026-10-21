@@ -143,7 +143,9 @@ test('back stack: push, pop on going back, Home resets', () => {
   assert.deepEqual(st, ['#/', '#/songs/practice'], 'a re-render of the same route does not push');
   st = Shell.nextStack(st, '#/');
   assert.deepEqual(st, ['#/']);
-  assert.equal(Shell.backTarget(['#/perform/ode']), '#/', 'a deep link goes back Home');
+  assert.equal(Shell.backTarget(['#/perform/ode']), '#/songs/perform', 'a deep link goes back to its song list');
+  assert.equal(Shell.backTarget(['#/', '#/ear/mary?step=listen', '#/ear/mary?step=echo'].reduce((s, r) => Shell.nextStack(s, r), [])), '#/', 'steps inside one screen are skipped');
+  assert.equal(Shell.backTarget(['#/', '#/drill', '#/drill?meet=C4'].reduce((s, r) => Shell.nextStack(s, r), [])), '#/', 'a screen that rewrites its own address still goes back');
   assert.equal(Shell.backTarget([]), '#/');
   let long = [];
   for (let i = 0; i < 80; i++) long = Shell.nextStack(long, '#/x/' + i);

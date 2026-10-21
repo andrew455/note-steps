@@ -34,7 +34,7 @@ const IOI = 0.357;
 test('params match the spec defaults', () => {
   const T = mk();
   assert.deepEqual(T.params, {
-    minGate: 0.008, floorMult: 3, quietMult: 0.6, retriggerMs: 110, rise: 1.7, riseRepeat: 1.35,
+    minGate: 0.002, floorMult: 3, quietMult: 0.6, retriggerMs: 110, rise: 1.7, riseRepeat: 1.35,
     riseLookback: 4, voteStartMs: 35, centsTol: 0.4, agree: 2, timeoutMs: 500, minHz: 70, maxHz: 1400,
   });
   assert.equal(mk({ agree: 3 }).params.agree, 3);
