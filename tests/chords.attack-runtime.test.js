@@ -858,12 +858,12 @@ test('chord-card: live status region; listening off explains how to use chords, 
   const st = statusOf(container);
   assert.ok(st, 'an aria-live element exists from the start');
   assert.ok(['polite', 'assertive'].includes(st.getAttribute('aria-live')));
-  assert.ok(/start listening/i.test(st.textContent), st.textContent);
+  assert.ok(/usb keyboard/i.test(st.textContent), st.textContent);
   assert.ok(/button/i.test(st.textContent), st.textContent);
   api.setListening(true);
   assert.ok(/listening/i.test(st.textContent) && !/start listening/i.test(st.textContent), st.textContent);
   api.setListening(false);
-  assert.ok(/start listening/i.test(st.textContent));
+  assert.ok(/usb keyboard/i.test(st.textContent));
   api.destroy();
 });
 
