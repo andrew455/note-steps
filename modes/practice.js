@@ -636,7 +636,7 @@
       if (ev.source === 'screen') stopListen(); // a key tap stops playback and is not judged
       return;
     }
-    if (ev.source !== 'screen' && NS.audio.isBusy()) return; // our own sound; the mic is muted anyway
+    if (ev.source === 'mic' && NS.audio.isBusy()) return; // our own sound; the mic is muted anyway
     ses.kb.setHeard(ev.midi);
     if (ses.introOpen) closeIntro();
     if (!ses.startedAt) ses.startedAt = performance.now();
@@ -869,9 +869,10 @@
     c.det = root.ChordDetect.attach(NS.audio.ctx(), src, {
       targets: ['C', 'Cm'],
       muted: () => NS.audio.micMuted(performance.now()),
-      onChord: (name) => {
+      onChord: (name, info) => {
         const now = performance.now();
-        if (!ses || ses.chord !== c || !c.actions[name] || NS.audio.micMuted(now) || now < c.quietUntil) return;
+        const usb = info && info.via === 'midi';
+        if (!ses || ses.chord !== c || !c.actions[name] || (!usb && NS.audio.micMuted(now)) || now < c.quietUntil) return;
         c.quietUntil = now + 800;
         c.card.flash(name);
         clearTimeout(c.timer);

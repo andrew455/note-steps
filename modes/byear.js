@@ -531,10 +531,13 @@
   function detachDetector() {
     if (S && S.det) { try { S.det.dispose(); } catch {} S.det = null; }
   }
-  function onChord(name) {
+  function onChord(name, info) {
     if (!S || !CHORD_ORDER.includes(name)) return;
-    // Muted while our own synth plays, with the same mute window as the note listener.
-    if (S.playing || NS.audio.micMuted()) return;
+    // Mic chords are muted while our own synth plays (the speaker would trigger them). A USB keyboard
+    // can't hear the speaker, so its chords always count and simply stop the playback.
+    const usb = info && info.via === 'midi';
+    if (!usb && (S.playing || NS.audio.micMuted())) return;
+    if (usb && S.playing) stopPlayback();
     fire(name, 'chord');
   }
   function onMicState(st) {
@@ -598,7 +601,7 @@
   // INPUT
   // ======================================================================
   function onInput(ev) {
-    if (!S || S.playing) return;
+    if (!S || (S.playing && ev.source !== 'midi')) return;
     if ((ev.source === 'mic' || ev.source === 'midi') && S.kb) S.kb.setHeard(ev.midi);
     if (S.step === 'practise') practiseNote(ev);
     else if (S.step === 'take') takeNote(ev);

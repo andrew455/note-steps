@@ -552,7 +552,7 @@
   function onInput(ev) {
     if (!s || s.locked || !s.att || !s.target) return;
     if (!['find', 'drill', 'phrase', 'check', 'one'].includes(s.phase)) return;
-    if (NS.audio.isBusy()) return; // our own sound; the mic is muted anyway, this also catches taps
+    if (NS.audio.isBusy() && ev.source !== 'midi') return; // our own sound; the mic is muted anyway, this also catches taps
     const target = s.target;
     if (s.kb) s.kb.setHeard(fold(ev.midi));
     const ok = pc(ev.midi) === pc(target.midi);

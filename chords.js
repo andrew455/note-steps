@@ -482,8 +482,7 @@
     const targets = o.targets || ['C', 'Cm'];
     return NS.bus.on('midi:chord', ({ name }) => {
       if (targets.indexOf(name) < 0) return;
-      if (typeof o.muted === 'function' && o.muted()) return;
-      if (typeof o.onChord === 'function') o.onChord(name);
+      if (typeof o.onChord === 'function') o.onChord(name, { via: 'midi' });
     });
   }
   function midiOnly(o) {

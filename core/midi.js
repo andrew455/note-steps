@@ -6,7 +6,7 @@
   const NS = root.NS;
   const KEY = 'note-steps-midi';
   const CHORD_PCS = { C: [0, 4, 7], Cm: [0, 3, 7], G: [7, 11, 2] };
-  const CHORD_WINDOW_MS = 250; // a chord's three keys go down within this time
+  const CHORD_WINDOW_MS = 400; // a chord's keys go down within this time
 
   let access = null;
   let on = false;
@@ -35,22 +35,39 @@
       checkChord(stamp);
     } else if (cmd === 0x80 || (cmd === 0x90 && vel === 0)) {
       held.delete(note);
-      if (!held.size) chordFired = false;
+      // The next chord can come once the hand has let go of most of this one.
+      if (held.size < 2) chordFired = false;
     }
   }
 
+  const NAMES = ['C', 'C♯', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B♭', 'B'];
+  // Command ids used by the app; any other major or minor triad is still named in a message.
+  const IDS = { '0maj': 'C', '0min': 'Cm', '7maj': 'G' };
+
+  // Which triad do these pitch classes make (any inversion, notes doubled in other octaves)?
+  function triadOf(pcs) {
+    if (pcs.length !== 3) return null;
+    for (const r of pcs) {
+      const has = (i) => pcs.includes((r + i) % 12);
+      if (has(7) && has(4)) return { root: r, quality: 'maj' };
+      if (has(7) && has(3)) return { root: r, quality: 'min' };
+    }
+    return null;
+  }
+
   function checkChord(now) {
+    // Forget keys that have been "held" for ages (a lost key-up must not block chords for good).
+    for (const [m, t] of held) if (now - t > 15000) held.delete(m);
     if (chordFired) return;
     const recent = [...held].filter(([, t]) => now - t <= CHORD_WINDOW_MS).map(([m]) => ((m % 12) + 12) % 12);
-    const pcs = [...new Set(recent)].sort((a, b) => a - b);
-    if (pcs.length !== 3) return;
-    for (const [name, want] of Object.entries(CHORD_PCS)) {
-      if ([...want].sort((a, b) => a - b).every((p, i) => p === pcs[i])) {
-        chordFired = true;
-        NS.bus.emit('midi:chord', { name });
-        return;
-      }
-    }
+    const pcs = [...new Set(recent)];
+    const tri = triadOf(pcs);
+    if (!tri) return;
+    chordFired = true;
+    const id = IDS[tri.root + tri.quality] || null;
+    const label = `${NAMES[tri.root]} ${tri.quality === 'maj' ? 'major' : 'minor'}`;
+    NS.bus.emit('midi:chordname', { label, id });
+    if (id) NS.bus.emit('midi:chord', { name: id });
   }
 
   function wire() {

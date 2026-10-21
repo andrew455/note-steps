@@ -191,7 +191,7 @@
   function onInput(ev) {
     if (!mounted) return;
     if (playback) return; // the mic is ignored while we play back; a key tap stops it (onKeyPress)
-    if (ev.source !== 'screen' && NS.audio.isBusy()) return;
+    if (ev.source === 'mic' && NS.audio.isBusy()) return;
     addNote(ev);
   }
 
