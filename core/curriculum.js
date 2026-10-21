@@ -117,14 +117,15 @@
   }
 
   // ---------- introducing notes ----------
-  const MAX_LEARNING = 4;
+  const MAX_LEARNING = 6;
   function introGate(S) {
     const next = UNITS[S.course.unit];
     if (!next) return 'done';
     const N = notesOf(S);
     const notKnown = introducedKeys(S).filter((k) => Mastery.state(N[k]) !== 'known');
-    const solid = notKnown.every((k) => N[k].acc >= 0.8 && N[k].n >= 8);
-    const okish = notKnown.every((k) => N[k].acc >= 0.7 && N[k].n >= 6);
+    // Moves on fairly quickly: a few good reads per note are enough (the user can always skip ahead).
+    const solid = notKnown.every((k) => N[k].acc >= 0.75 && N[k].n >= 5);
+    const okish = notKnown.every((k) => N[k].acc >= 0.6 && N[k].n >= 3);
     if (solid && notKnown.length + next.notes.length <= MAX_LEARNING) return 'open';
     return okish ? 'soft' : 'closed';
   }

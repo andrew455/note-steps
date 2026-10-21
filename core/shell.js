@@ -859,6 +859,29 @@
     const drill = q('[data-drill]');
     if (drill && extra.length) decorate(drill, extra[0], () => drill.click(), iconFor({ id: 'drill' }), '#e8a10c', '#f5d33b');
 
+    // "New notes": always a way to move on to the next keys, whenever you feel ready.
+    let meetBox = q('[data-meet-next]');
+    const Cn = Curr();
+    const nextUnit = Cn && Cn.UNITS ? Cn.UNITS[course().unit || 0] : null;
+    const upIsMeet = Boolean(home && home.upKind === 'meet');
+    if (nextUnit && !upIsMeet && extra.length > 1) {
+      const letters = NS.ui.core.listLetters(nextUnit.notes.map((k) => k.replace(/\d/, ''))).replace(/, ([^,]*)$/, ' and $1');
+      if (!meetBox) {
+        meetBox = el('button', 'card meetnext');
+        meetBox.type = 'button';
+        meetBox.dataset.meetNext = '';
+        const upCard = q('[data-upnext]');
+        (upCard || grid).insertAdjacentElement('afterend', meetBox);
+      }
+      meetBox.innerHTML = '';
+      meetBox.append(el('span', 'eyebrow', 'New notes'), el('h2', null, `Meet ${letters}`), el('span', 'muted', 'Ready for more keys? Learn the next note now.'));
+      const goMeet = () => { NS.audio.resume(); go(`#/drill?meet=${nextUnit.notes.join(',')}`); };
+      meetBox.onclick = goMeet;
+      decorate(meetBox, extra[1], goMeet, '<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>', '#7048e8', '#4dabf7');
+    } else if (meetBox) {
+      meetBox.remove();
+    }
+
     // Play a tile's chord to open it.
     disposeHomeChords();
     if (root.ChordDetect) {
@@ -915,6 +938,7 @@
     renderToday(q);
     renderInvite(q);
     const step = renderUpNext(q, S, songs, now);
+    home.upKind = step.kind;
     const weak = renderDrillCard(q);
     renderModes(q);
     const forYou = renderForYou(q, S, songs, now);

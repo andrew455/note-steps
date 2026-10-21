@@ -118,22 +118,22 @@ test('introGate: open for a new user; done after the last unit', () => {
   assert.equal(C.introGate(state(11)), 'done');
 });
 
-test('introGate: 4 learning notes at acc 0.85, n 8 -> soft (budget); after 2 become known -> open', () => {
-  const S = withNotes({ C4: LEARN(0.85), D4: LEARN(0.85), E4: LEARN(0.85), F4: LEARN(0.85) }, 3);
+test('introGate: 6 learning notes at acc 0.85, n 8 -> soft (budget of 6 learning); after 2 become known -> open', () => {
+  const S = withNotes({ C4: LEARN(0.85), D4: LEARN(0.85), E4: LEARN(0.85), F4: LEARN(0.85), G4: LEARN(0.85), A4: LEARN(0.85) }, 5);
   assert.equal(C.introGate(S), 'soft');
   Object.assign(S.notes.C4, KNOWN());
   Object.assign(S.notes.D4, KNOWN());
   assert.equal(C.introGate(S), 'open');
 });
 
-test('introGate: C, D, E, F still learning keep G closed until the solid rule holds', () => {
-  const S = withNotes({ C4: KNOWN(), D4: KNOWN(), E4: LEARN(0.65, 5), F4: LEARN(0.6, 4) }, 3);
+test('introGate: still-learning notes keep the next one closed until the (quicker) solid rule holds', () => {
+  const S = withNotes({ C4: KNOWN(), D4: KNOWN(), E4: LEARN(0.5, 5), F4: LEARN(0.55, 2) }, 3);
   assert.equal(C.introGate(S), 'closed');
-  Object.assign(S.notes.E4, LEARN(0.75, 7));
-  Object.assign(S.notes.F4, LEARN(0.72, 6));
+  Object.assign(S.notes.E4, LEARN(0.65, 4));
+  Object.assign(S.notes.F4, LEARN(0.62, 3));
   assert.equal(C.introGate(S), 'soft');
-  Object.assign(S.notes.E4, LEARN(0.82, 9));
-  Object.assign(S.notes.F4, LEARN(0.81, 8));
+  Object.assign(S.notes.E4, LEARN(0.78, 6));
+  Object.assign(S.notes.F4, LEARN(0.76, 5));
   assert.equal(C.introGate(S), 'open');
 });
 
