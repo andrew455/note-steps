@@ -659,15 +659,36 @@
           drawn.push({ i, x: it.x });
         });
       } else {
-        const lay = layoutEven(n, d.N, playing != null ? playing : newest);
+        // Notes struck together (a chord) share one column.
+        const cols = columns();
+        const nCols = n ? cols[n - 1] + 1 : 0;
+        const focusCol = n ? cols[playing != null ? playing : newest] : 0;
+        const lay = layoutEven(nCols, d.N, focusCol);
         translate = lay.translate;
-        for (let i = lay.firstDrawn; i < n; i++) {
-          const x = lay.xOf(i);
-          const opacity = lay.offset > 0 && i === lay.offset ? 0.55 : lay.offset > 0 && i === lay.offset + 1 ? 0.8 : 1;
+        const isNewCol = (c) => n && c === cols[newest] && playing == null;
+        const colSize = {};
+        cols.forEach((c) => { colSize[c] = (colSize[c] || 0) + 1; });
+        for (let i = 0; i < n; i++) {
+          const c = cols[i];
+          if (c < lay.firstDrawn) continue;
+          const x = lay.xOf(c);
+          const opacity = lay.offset > 0 && c === lay.offset ? 0.55 : lay.offset > 0 && c === lay.offset + 1 ? 0.8 : 1;
           drawEntry(i, x, Object.assign({
-            acc: entries[i].place.note.acc || null, dur: 'q', color: colorOf(i), column: columnOf(i), state: stateOf(i), opacity,
-          }, labelInfo(i)));
+            acc: entries[i].place.note.acc || null, dur: 'q',
+            color: isNewCol(c) ? 'var(--accent)' : colorOf(i), column: isNewCol(c) ? 'var(--accent-soft)' : columnOf(i),
+            state: stateOf(i), opacity,
+          }, labelInfo(i), colSize[c] > 1 ? { label: false } : {}));
           drawn.push({ i, x });
+        }
+        // Chord names above the staff.
+        for (let c = lay.firstDrawn; c < nCols; c++) {
+          const idx = cols.map((v, i) => (v === c ? i : -1)).filter((i) => i >= 0);
+          if (idx.length < 3) continue;
+          const name = chordName(idx.map((i) => entries[i].midi));
+          if (!name) continue;
+          const t2 = mk('text', { x: lay.xOf(c), y: 16, 'text-anchor': 'middle', 'font-size': 13, 'font-weight': 800, class: 'fp-chord' }, track);
+          t2.style.fill = isNewCol(c) ? 'var(--accent)' : 'var(--ink)';
+          t2.textContent = name;
         }
       }
 
@@ -676,7 +697,7 @@
         for (let k = 1; k < drawn.length; k++) {
           const A = drawn[k - 1];
           const B = drawn[k];
-          if (B.i !== A.i + 1) continue;
+          if (B.i !== A.i + 1 || B.x === A.x) continue;
           drawShape(band, A.x, entries[A.i].place.note, B.x, entries[B.i].place.note, B.i === (playing != null ? playing : newest));
         }
       }
@@ -690,6 +711,29 @@
       const wantOpen = o.rhythm === 'timed' && n > 0 && playing == null;
       if (wantOpen && !openTimer) openTimer = setInterval(() => render({ instant: true }), 100);
       if (!wantOpen && openTimer) { clearInterval(openTimer); openTimer = null; }
+    }
+
+    // Column of each entry: a note that starts within 90 ms of the previous one joins its column.
+    function columns() {
+      const out = [];
+      let c = -1;
+      entries.forEach((e, i) => {
+        if (i === 0 || Math.abs(e.tOnset - entries[i - 1].tOnset) > 90) c++;
+        out.push(c);
+      });
+      return out;
+    }
+    // "C", "Am", "F♯m"... for a major or minor triad (any inversion or doubling), else null.
+    function chordName(midis) {
+      const pcs = [...new Set(midis.map((m) => ((m % 12) + 12) % 12))];
+      if (pcs.length !== 3) return null;
+      const N = ['C', 'C♯', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B♭', 'B'];
+      for (const r of pcs) {
+        const has = (k) => pcs.includes((r + k) % 12);
+        if (has(4) && has(7)) return N[r];
+        if (has(3) && has(7)) return N[r] + 'm';
+      }
+      return null;
     }
 
     function makeEntry(midi, info = {}) {

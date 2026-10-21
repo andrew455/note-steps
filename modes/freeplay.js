@@ -147,6 +147,8 @@
     buildChips();
     offs = [
       NS.input.on(onInput),
+      NS.bus.on('midi:chordname', ({ label }) => { if (mounted) setFeedback(label, 'Chord'); }),
+      NS.bus.on('midi:state', () => { if (mounted) updateStatus(); }),
       NS.mic.on('quiet', (ev) => { if (staff) staff.noteOff(ev.tOnset); }),
       NS.bus.on('resize', () => staff && staff.render({ instant: true })),
       NS.bus.on('theme', () => staff && staff.render({ instant: true })),
@@ -463,7 +465,7 @@
       const bpm = Math.round(60000 / staff.beatMs());
       text = `Timed · 4/4 · ${set.bpm === 'auto' ? '≈' : ''}${bpm} beats a minute`;
     } else if (!NS.mic.isOn() && !(NS.midi && NS.midi.isOn())) text = 'Connect your USB keyboard, or tap the keys below.';
-    else text = staff && staff.count() ? 'Newest note on the right. Tap a note to hear it.' : 'Listening…';
+    else text = staff && staff.count() ? 'Newest note on the right. Tap a note to hear it.' : 'Play something on your keyboard.';
     ui.statusText.textContent = text;
     ui.beat.hidden = set.rhythm !== 'timed' || Boolean(playback);
   }
